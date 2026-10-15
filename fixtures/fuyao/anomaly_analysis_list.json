@@ -1,0 +1,290 @@
+{
+  "code": 0,
+  "message": "success",
+  "request_id": "8e141cbe5d8443d8e8a4de3c0cad8d50",
+  "data": {
+    "timestamp": 1792047600000,
+    "item": [
+      {
+        "thscode": "002815.SZ",
+        "ticker": "002815",
+        "name": "崇达技术",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "元件板块异动",
+        "keyword_list": [
+          "元件",
+          "资金流入"
+        ],
+        "analysis_content": "崇达技术当日涨幅 9.9811%，所属元件板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "000626.SZ",
+        "ticker": "000626",
+        "name": "远大控股",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "物流板块异动",
+        "keyword_list": [
+          "物流",
+          "资金流入"
+        ],
+        "analysis_content": "远大控股当日涨幅 9.976%，所属物流板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "002696.SZ",
+        "ticker": "002696",
+        "name": "百洋股份",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "饲料板块异动",
+        "keyword_list": [
+          "饲料",
+          "资金流入"
+        ],
+        "analysis_content": "百洋股份当日涨幅 10.0513%，所属饲料板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "002343.SZ",
+        "ticker": "002343",
+        "name": "慈文传媒",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "影视院线板块异动",
+        "keyword_list": [
+          "影视院线",
+          "资金流入"
+        ],
+        "analysis_content": "慈文传媒当日涨幅 10%，所属影视院线板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "000530.SZ",
+        "ticker": "000530",
+        "name": "冰山冷热",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "通用设备板块异动",
+        "keyword_list": [
+          "通用设备",
+          "资金流入"
+        ],
+        "analysis_content": "冰山冷热当日涨幅 10%，所属通用设备板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "605189.SH",
+        "ticker": "605189",
+        "name": "富春染织",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "纺织制造板块异动",
+        "keyword_list": [
+          "纺织制造",
+          "资金流入"
+        ],
+        "analysis_content": "富春染织当日涨幅 9.9815%，所属纺织制造板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "001318.SZ",
+        "ticker": "001318",
+        "name": "阳光乳业",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "饮料乳品板块异动",
+        "keyword_list": [
+          "饮料乳品",
+          "资金流入"
+        ],
+        "analysis_content": "阳光乳业当日涨幅 9.9806%，所属饮料乳品板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "603999.SH",
+        "ticker": "603999",
+        "name": "读者传媒",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "出版板块异动",
+        "keyword_list": [
+          "出版",
+          "资金流入"
+        ],
+        "analysis_content": "读者传媒当日涨幅 9.9567%，所属出版板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "001225.SZ",
+        "ticker": "001225",
+        "name": "和泰机电",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "专用设备板块异动",
+        "keyword_list": [
+          "专用设备",
+          "资金流入"
+        ],
+        "analysis_content": "和泰机电当日涨幅 10%，所属专用设备板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "301282.SZ",
+        "ticker": "301282",
+        "name": "金禄电子",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "元件板块异动",
+        "keyword_list": [
+          "元件",
+          "资金流入"
+        ],
+        "analysis_content": "金禄电子当日涨幅 20%，所属元件板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "000722.SZ",
+        "ticker": "000722",
+        "name": "湖南发展",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "电力板块异动",
+        "keyword_list": [
+          "电力",
+          "资金流入"
+        ],
+        "analysis_content": "湖南发展当日涨幅 10.0158%，所属电力板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "002103.SZ",
+        "ticker": "002103",
+        "name": "广博股份",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "文娱用品板块异动",
+        "keyword_list": [
+          "文娱用品",
+          "资金流入"
+        ],
+        "analysis_content": "广博股份当日涨幅 9.9707%，所属文娱用品板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "002134.SZ",
+        "ticker": "002134",
+        "name": "天津普林",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "元件板块异动",
+        "keyword_list": [
+          "元件",
+          "资金流入"
+        ],
+        "analysis_content": "天津普林当日涨幅 9.9864%，所属元件板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "000995.SZ",
+        "ticker": "000995",
+        "name": "皇台酒业",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "白酒Ⅱ板块异动",
+        "keyword_list": [
+          "白酒Ⅱ",
+          "资金流入"
+        ],
+        "analysis_content": "皇台酒业当日涨幅 10.0412%，所属白酒Ⅱ板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "002543.SZ",
+        "ticker": "002543",
+        "name": "万和电气",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "厨卫电器板块异动",
+        "keyword_list": [
+          "厨卫电器",
+          "资金流入"
+        ],
+        "analysis_content": "万和电气当日涨幅 10.0559%，所属厨卫电器板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "600721.SH",
+        "ticker": "600721",
+        "name": "百花医药",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "医疗服务板块异动",
+        "keyword_list": [
+          "医疗服务",
+          "资金流入"
+        ],
+        "analysis_content": "百花医药当日涨幅 10.0457%，所属医疗服务板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "603230.SH",
+        "ticker": "603230",
+        "name": "内蒙新华",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "出版板块异动",
+        "keyword_list": [
+          "出版",
+          "资金流入"
+        ],
+        "analysis_content": "内蒙新华当日涨幅 10%，所属出版板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "003029.SZ",
+        "ticker": "003029",
+        "name": "吉大正元",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "软件开发板块异动",
+        "keyword_list": [
+          "软件开发",
+          "资金流入"
+        ],
+        "analysis_content": "吉大正元当日涨幅 10.0165%，所属软件开发板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "300111.SZ",
+        "ticker": "300111",
+        "name": "向日葵",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "化学制药板块异动",
+        "keyword_list": [
+          "化学制药",
+          "资金流入"
+        ],
+        "analysis_content": "向日葵当日涨幅 20.0647%，所属化学制药板块。",
+        "trade_date": "2026-10-15"
+      },
+      {
+        "thscode": "603237.SH",
+        "ticker": "603237",
+        "name": "五芳斋",
+        "tag_code": "LIMIT_UP",
+        "tag_name": "涨停",
+        "limit_up_reason": "食品加工板块异动",
+        "keyword_list": [
+          "食品加工",
+          "资金流入"
+        ],
+        "analysis_content": "五芳斋当日涨幅 10.02%，所属食品加工板块。",
+        "trade_date": "2026-10-15"
+      }
+    ]
+  }
+}

@@ -1,0 +1,411 @@
+{
+  "code": 0,
+  "message": "success",
+  "request_id": "021f14c3456b3e13004b4775e11f2f8c",
+  "data": {
+    "timestamp": 1792047600000,
+    "period": "day",
+    "item": [
+      {
+        "thscode": "301569.SZ",
+        "ticker": "301569",
+        "heat": "2050292",
+        "rank": 1,
+        "rank_change": 1,
+        "name": null
+      },
+      {
+        "thscode": "600812.SH",
+        "ticker": "600812",
+        "heat": "2048455",
+        "rank": 2,
+        "rank_change": -52,
+        "name": ""
+      },
+      {
+        "thscode": "002343.SZ",
+        "ticker": "002343",
+        "heat": "2046618",
+        "rank": 3,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "002945.SZ",
+        "ticker": "002945",
+        "heat": "2044781",
+        "rank": 4,
+        "rank_change": -2471,
+        "name": null
+      },
+      {
+        "thscode": "000823.SZ",
+        "ticker": "000823",
+        "heat": "2042944",
+        "rank": 5,
+        "rank_change": 4,
+        "name": null
+      },
+      {
+        "thscode": "605058.SH",
+        "ticker": "605058",
+        "heat": "2041107",
+        "rank": 6,
+        "rank_change": -16,
+        "name": null
+      },
+      {
+        "thscode": "000530.SZ",
+        "ticker": "000530",
+        "heat": "2039270",
+        "rank": 7,
+        "rank_change": 5,
+        "name": null
+      },
+      {
+        "thscode": "601811.SH",
+        "ticker": "601811",
+        "heat": "2037433",
+        "rank": 8,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "300059.SZ",
+        "ticker": "300059",
+        "heat": "2035596",
+        "rank": 9,
+        "rank_change": -42,
+        "name": null
+      },
+      {
+        "thscode": "600869.SH",
+        "ticker": "600869",
+        "heat": "2033759",
+        "rank": 10,
+        "rank_change": -60,
+        "name": null
+      },
+      {
+        "thscode": "603200.SH",
+        "ticker": "603200",
+        "heat": "2031922",
+        "rank": 11,
+        "rank_change": -181,
+        "name": null
+      },
+      {
+        "thscode": "688825.SH",
+        "ticker": "688825",
+        "heat": "2030085",
+        "rank": 12,
+        "rank_change": -31,
+        "name": null
+      },
+      {
+        "thscode": "600693.SH",
+        "ticker": "600693",
+        "heat": "2028248",
+        "rank": 13,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "600721.SH",
+        "ticker": "600721",
+        "heat": "2026411",
+        "rank": 14,
+        "rank_change": -326,
+        "name": null
+      },
+      {
+        "thscode": "002815.SZ",
+        "ticker": "002815",
+        "heat": "2024574",
+        "rank": 15,
+        "rank_change": -68,
+        "name": ""
+      },
+      {
+        "thscode": "000995.SZ",
+        "ticker": "000995",
+        "heat": "2022737",
+        "rank": 16,
+        "rank_change": -146,
+        "name": null
+      },
+      {
+        "thscode": "300308.SZ",
+        "ticker": "300308",
+        "heat": "2020900",
+        "rank": 17,
+        "rank_change": 2,
+        "name": null
+      },
+      {
+        "thscode": "000892.SZ",
+        "ticker": "000892",
+        "heat": "2019063",
+        "rank": 18,
+        "rank_change": -64,
+        "name": null
+      },
+      {
+        "thscode": "600519.SH",
+        "ticker": "600519",
+        "heat": "2017226",
+        "rank": 19,
+        "rank_change": -19,
+        "name": ""
+      },
+      {
+        "thscode": "002696.SZ",
+        "ticker": "002696",
+        "heat": "2015389",
+        "rank": 20,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "603533.SH",
+        "ticker": "603533",
+        "heat": "2013552",
+        "rank": 21,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "603690.SH",
+        "ticker": "603690",
+        "heat": "2011715",
+        "rank": 22,
+        "rank_change": -641,
+        "name": null
+      },
+      {
+        "thscode": "300502.SZ",
+        "ticker": "300502",
+        "heat": "2009878",
+        "rank": 23,
+        "rank_change": -47,
+        "name": null
+      },
+      {
+        "thscode": "603230.SH",
+        "ticker": "603230",
+        "heat": "2008041",
+        "rank": 24,
+        "rank_change": -101,
+        "name": null
+      },
+      {
+        "thscode": "002639.SZ",
+        "ticker": "002639",
+        "heat": "2006204",
+        "rank": 25,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "603258.SH",
+        "ticker": "603258",
+        "heat": "2004367",
+        "rank": 26,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "000712.SZ",
+        "ticker": "000712",
+        "heat": "2002530",
+        "rank": 27,
+        "rank_change": -287,
+        "name": null
+      },
+      {
+        "thscode": "300111.SZ",
+        "ticker": "300111",
+        "heat": "2000693",
+        "rank": 28,
+        "rank_change": -1393,
+        "name": null
+      },
+      {
+        "thscode": "001318.SZ",
+        "ticker": "001318",
+        "heat": "1998856",
+        "rank": 29,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "301660.SZ",
+        "ticker": "301660",
+        "heat": "1997019",
+        "rank": 30,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "301282.SZ",
+        "ticker": "301282",
+        "heat": "1995182",
+        "rank": 31,
+        "rank_change": -48,
+        "name": null
+      },
+      {
+        "thscode": "600127.SH",
+        "ticker": "600127",
+        "heat": "1993345",
+        "rank": 32,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "605189.SH",
+        "ticker": "605189",
+        "heat": "1991508",
+        "rank": 33,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "000722.SZ",
+        "ticker": "000722",
+        "heat": "1989671",
+        "rank": 34,
+        "rank_change": -258,
+        "name": null
+      },
+      {
+        "thscode": "603999.SH",
+        "ticker": "603999",
+        "heat": "1987834",
+        "rank": 35,
+        "rank_change": -877,
+        "name": null
+      },
+      {
+        "thscode": "600241.SH",
+        "ticker": "600241",
+        "heat": "1985997",
+        "rank": 36,
+        "rank_change": 10,
+        "name": null
+      },
+      {
+        "thscode": "600418.SH",
+        "ticker": "600418",
+        "heat": "1984160",
+        "rank": 37,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "600668.SH",
+        "ticker": "600668",
+        "heat": "1982323",
+        "rank": 38,
+        "rank_change": -3903,
+        "name": null
+      },
+      {
+        "thscode": "002636.SZ",
+        "ticker": "002636",
+        "heat": "1980486",
+        "rank": 39,
+        "rank_change": -50,
+        "name": null
+      },
+      {
+        "thscode": "002058.SZ",
+        "ticker": "002058",
+        "heat": "1978649",
+        "rank": 40,
+        "rank_change": -139,
+        "name": null
+      },
+      {
+        "thscode": "603386.SH",
+        "ticker": "603386",
+        "heat": "1976812",
+        "rank": 41,
+        "rank_change": -37,
+        "name": null
+      },
+      {
+        "thscode": "002543.SZ",
+        "ticker": "002543",
+        "heat": "1974975",
+        "rank": 42,
+        "rank_change": -1757,
+        "name": null
+      },
+      {
+        "thscode": "600206.SH",
+        "ticker": "600206",
+        "heat": "1973138",
+        "rank": 43,
+        "rank_change": 33,
+        "name": null
+      },
+      {
+        "thscode": "003029.SZ",
+        "ticker": "003029",
+        "heat": "1971301",
+        "rank": 44,
+        "rank_change": -1306,
+        "name": null
+      },
+      {
+        "thscode": "002103.SZ",
+        "ticker": "002103",
+        "heat": "1969464",
+        "rank": 45,
+        "rank_change": -2443,
+        "name": null
+      },
+      {
+        "thscode": "603986.SH",
+        "ticker": "603986",
+        "heat": "1967627",
+        "rank": 46,
+        "rank_change": 13,
+        "name": null
+      },
+      {
+        "thscode": "002134.SZ",
+        "ticker": "002134",
+        "heat": "1965790",
+        "rank": 47,
+        "rank_change": -1126,
+        "name": null
+      },
+      {
+        "thscode": "002552.SZ",
+        "ticker": "002552",
+        "heat": "1963953",
+        "rank": 48,
+        "rank_change": null,
+        "name": null
+      },
+      {
+        "thscode": "000626.SZ",
+        "ticker": "000626",
+        "heat": "1962116",
+        "rank": 49,
+        "rank_change": -211,
+        "name": null
+      },
+      {
+        "thscode": "603535.SH",
+        "ticker": "603535",
+        "heat": "1960279",
+        "rank": 50,
+        "rank_change": -4202,
+        "name": null
+      }
+    ]
+  }
+}

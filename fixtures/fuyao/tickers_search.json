@@ -1,0 +1,106 @@
+{
+  "code": 0,
+  "message": "success",
+  "request_id": "14d497c25dee344c50857f8b29a7ea6a",
+  "data": {
+    "timestamp": 1792065843213,
+    "item": [
+      {
+        "thscode": "600519.SH",
+        "ticker": "600519",
+        "name": "贵州茅台",
+        "asset_type": "stock",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000001.SZ",
+        "ticker": "000001",
+        "name": "平安银行",
+        "asset_type": "stock",
+        "market": "SZ",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "300750.SZ",
+        "ticker": "300750",
+        "name": "宁德时代",
+        "asset_type": "stock",
+        "market": "SZ",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "601318.SH",
+        "ticker": "601318",
+        "name": "中国平安",
+        "asset_type": "stock",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000858.SZ",
+        "ticker": "000858",
+        "name": "五粮液",
+        "asset_type": "stock",
+        "market": "SZ",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "002594.SZ",
+        "ticker": "002594",
+        "name": "比亚迪",
+        "asset_type": "stock",
+        "market": "SZ",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "600036.SH",
+        "ticker": "600036",
+        "name": "招商银行",
+        "asset_type": "stock",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "601899.SH",
+        "ticker": "601899",
+        "name": "紫金矿业",
+        "asset_type": "stock",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "002815.SZ",
+        "ticker": "002815",
+        "name": "崇达技术",
+        "asset_type": "stock",
+        "market": "SZ",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "600812.SH",
+        "ticker": "600812",
+        "name": "华北制药",
+        "asset_type": "stock",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000300.SH",
+        "ticker": "000300",
+        "name": "沪深300",
+        "asset_type": "index",
+        "market": "SH",
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000001.SH",
+        "ticker": "000001",
+        "name": "上证指数",
+        "asset_type": "index",
+        "market": "SH",
+        "currency": "CNY"
+      }
+    ]
+  }
+}

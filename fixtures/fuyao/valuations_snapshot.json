@@ -1,0 +1,140 @@
+{
+  "code": 0,
+  "message": "success",
+  "request_id": "3be7c86485b785f2b574758ee4fab34b",
+  "data": {
+    "timestamp": 1792047600000,
+    "item": [
+      {
+        "thscode": "600519.SH",
+        "ticker": "600519",
+        "name": "贵州茅台",
+        "pe_ttm": 18.43,
+        "pe_mrq": null,
+        "pb_mrq": 6.53,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 1641319639665,
+        "float_market_cap": 1641319639665,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000001.SZ",
+        "ticker": "000001",
+        "name": "平安银行",
+        "pe_ttm": 4.31,
+        "pe_mrq": null,
+        "pb_mrq": 0.48,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 221421526639,
+        "float_market_cap": 221418865747,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "300750.SZ",
+        "ticker": "300750",
+        "name": "宁德时代",
+        "pe_ttm": 14.89,
+        "pe_mrq": null,
+        "pb_mrq": 3.46,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 1288689037551,
+        "float_market_cap": 1186581857616,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "601318.SH",
+        "ticker": "601318",
+        "name": "中国平安",
+        "pe_ttm": 5.06,
+        "pe_mrq": null,
+        "pb_mrq": 0.93,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 937613702501,
+        "float_market_cap": 551978169998,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "000858.SZ",
+        "ticker": "000858",
+        "name": "五 粮 液",
+        "pe_ttm": 15.81,
+        "pe_mrq": null,
+        "pb_mrq": 2.34,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 276758650757,
+        "float_market_cap": 276751904778,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "002594.SZ",
+        "ticker": "002594",
+        "name": "比亚迪",
+        "pe_ttm": 30.42,
+        "pe_mrq": null,
+        "pb_mrq": 3.12,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 749798327746,
+        "float_market_cap": 286776531697,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "600036.SH",
+        "ticker": "600036",
+        "name": "招商银行",
+        "pe_ttm": 7.04,
+        "pe_mrq": null,
+        "pb_mrq": 0.94,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 1075878613339,
+        "float_market_cap": 880030769341,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "601899.SH",
+        "ticker": "601899",
+        "name": "紫金矿业",
+        "pe_ttm": 9.97,
+        "pe_mrq": null,
+        "pb_mrq": 4.04,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 781237652321,
+        "float_market_cap": 605280682453,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "002815.SZ",
+        "ticker": "002815",
+        "name": "崇达技术",
+        "pe_ttm": 94.26,
+        "pe_mrq": null,
+        "pb_mrq": 3.23,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 28694018283,
+        "float_market_cap": 18068459407,
+        "currency": "CNY"
+      },
+      {
+        "thscode": "600812.SH",
+        "ticker": "600812",
+        "name": "华北制药",
+        "pe_ttm": 88.28,
+        "pe_mrq": null,
+        "pb_mrq": 2.04,
+        "ps_ttm": null,
+        "pcf_ttm": null,
+        "total_market_cap": 11272348531,
+        "float_market_cap": 11272348531,
+        "currency": "CNY"
+      }
+    ]
+  }
+}

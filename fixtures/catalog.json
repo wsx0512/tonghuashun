@@ -1,0 +1,127 @@
+{
+  "generatedAt": "2026-10-15T12:04:03.985Z",
+  "source": "eastmoney/sina 公开行情快照（非扶摇）",
+  "instruments": [
+    {
+      "thscode": "600519.SH",
+      "ticker": "600519",
+      "name": "贵州茅台",
+      "kind": "stock",
+      "aliases": [
+        "贵州茅台",
+        "茅台",
+        "600519"
+      ]
+    },
+    {
+      "thscode": "000001.SZ",
+      "ticker": "000001",
+      "name": "平安银行",
+      "kind": "stock",
+      "aliases": [
+        "平安银行",
+        "000001"
+      ]
+    },
+    {
+      "thscode": "300750.SZ",
+      "ticker": "300750",
+      "name": "宁德时代",
+      "kind": "stock",
+      "aliases": [
+        "宁德时代",
+        "300750"
+      ]
+    },
+    {
+      "thscode": "601318.SH",
+      "ticker": "601318",
+      "name": "中国平安",
+      "kind": "stock",
+      "aliases": [
+        "中国平安",
+        "601318"
+      ]
+    },
+    {
+      "thscode": "000858.SZ",
+      "ticker": "000858",
+      "name": "五粮液",
+      "kind": "stock",
+      "aliases": [
+        "五粮液",
+        "000858"
+      ]
+    },
+    {
+      "thscode": "002594.SZ",
+      "ticker": "002594",
+      "name": "比亚迪",
+      "kind": "stock",
+      "aliases": [
+        "比亚迪",
+        "002594"
+      ]
+    },
+    {
+      "thscode": "600036.SH",
+      "ticker": "600036",
+      "name": "招商银行",
+      "kind": "stock",
+      "aliases": [
+        "招商银行",
+        "600036"
+      ]
+    },
+    {
+      "thscode": "601899.SH",
+      "ticker": "601899",
+      "name": "紫金矿业",
+      "kind": "stock",
+      "aliases": [
+        "紫金矿业",
+        "601899"
+      ]
+    },
+    {
+      "thscode": "002815.SZ",
+      "ticker": "002815",
+      "name": "崇达技术",
+      "kind": "stock",
+      "aliases": [
+        "崇达技术",
+        "002815"
+      ]
+    },
+    {
+      "thscode": "600812.SH",
+      "ticker": "600812",
+      "name": "华北制药",
+      "kind": "stock",
+      "aliases": [
+        "华北制药",
+        "600812"
+      ]
+    },
+    {
+      "thscode": "000300.SH",
+      "ticker": "000300",
+      "name": "沪深300",
+      "kind": "index",
+      "aliases": [
+        "沪深300",
+        "000300"
+      ]
+    },
+    {
+      "thscode": "000001.SH",
+      "ticker": "000001",
+      "name": "上证指数",
+      "kind": "index",
+      "aliases": [
+        "上证指数",
+        "大盘"
+      ]
+    }
+  ]
+}

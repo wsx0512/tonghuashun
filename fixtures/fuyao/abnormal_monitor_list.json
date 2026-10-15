@@ -1,0 +1,101 @@
+{
+  "code": 0,
+  "message": "success",
+  "request_id": "2daa8962dc9a03a4a610a2ade895e23e",
+  "data": {
+    "timestamp": 1792047600000,
+    "state": "current",
+    "item": [
+      {
+        "thscode": "002815.SZ",
+        "ticker": "002815",
+        "name": "崇达技术",
+        "monitor_label": "严重异动",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "000626.SZ",
+        "ticker": "000626",
+        "name": "远大控股",
+        "monitor_label": "严重异动",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "002696.SZ",
+        "ticker": "002696",
+        "name": "百洋股份",
+        "monitor_label": "严重异动",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "002343.SZ",
+        "ticker": "002343",
+        "name": "慈文传媒",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "000530.SZ",
+        "ticker": "000530",
+        "name": "冰山冷热",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "605189.SH",
+        "ticker": "605189",
+        "name": "富春染织",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "001318.SZ",
+        "ticker": "001318",
+        "name": "阳光乳业",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "603999.SH",
+        "ticker": "603999",
+        "name": "读者传媒",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "001225.SZ",
+        "ticker": "001225",
+        "name": "和泰机电",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      },
+      {
+        "thscode": "301282.SZ",
+        "ticker": "301282",
+        "name": "金禄电子",
+        "monitor_label": "重点监控",
+        "monitor_start_date": "2026-10-14",
+        "monitor_end_date": "2026-10-24",
+        "reason": "连续涨幅或换手率超过监管关注阈值"
+      }
+    ]
+  }
+}

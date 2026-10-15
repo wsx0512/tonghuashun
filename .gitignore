@@ -1,0 +1,11 @@
+node_modules/
+dist/
+var/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# 部署用的隧道二进制（12MB，不应入库）
+tools/bin/
