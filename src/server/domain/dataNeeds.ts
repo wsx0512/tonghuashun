@@ -11,7 +11,12 @@
 import type { Condition, DataNeed, Leaf } from '../../shared/dsl/types.js';
 import { EP } from '../sources/types.js';
 
-/** 快照即可取到的价格指标 */
+/**
+ * 快照即可取到的价格指标。
+ *
+ * ⚠️ `volume_ratio`（量比）**不在**这里：扶摇的快照契约（`PriceSnapshotItem`）
+ * 并不提供该字段，它必须由历史 K 线派生。详见下方 historical 分支的说明。
+ */
 const SNAPSHOT_METRICS = new Set([
   'last_price',
   'price_change',
@@ -22,7 +27,6 @@ const SNAPSHOT_METRICS = new Set([
   'prev_price',
   'volume',
   'turnover',
-  'volume_ratio',
 ]);
 
 /** 事件源 → 端点 */
@@ -71,7 +75,16 @@ export function leafDataNeed(leaf: Leaf): DataNeed {
   switch (leaf.type) {
     case 'price': {
       const thscode = subjectThscode(leaf.subject);
-      if (leaf.metric === 'close_price' || leaf.metric === 'return_pct_window' || leaf.metric === 'drawdown_from_high_pct') {
+      // 这些指标需要历史 K 线而非快照：
+      //  - close_price / return_pct_window：本身就要一段序列
+      //  - drawdown_from_high_pct：要区间最高价
+      //  - volume_ratio：**扶摇快照不提供量比**，只能由「当日量 ÷ 近 N 日均量」派生
+      if (
+        leaf.metric === 'close_price' ||
+        leaf.metric === 'return_pct_window' ||
+        leaf.metric === 'drawdown_from_high_pct' ||
+        leaf.metric === 'volume_ratio'
+      ) {
         return {
           endpoint: EP.pricesHistorical,
           // 该端点契约要求单只标的、且不接受逗号
@@ -91,12 +104,29 @@ export function leafDataNeed(leaf: Leaf): DataNeed {
       };
     }
 
-    case 'event':
+    case 'event': {
+      const endpoint = EVENT_ENDPOINT[leaf.source] ?? EP.anomalyAnalysisList;
+      /**
+       * 异动标签过滤走**请求参数** `tag_codes`，不是客户端过滤。
+       *
+       * 原因：契约的响应记录里**没有**标签代码字段 —— 只有展示名 `tag_name`（如"大涨"）。
+       * 标签代码（`LIMIT_UP` 等）是请求侧的概念，由服务端过滤。
+       * 早先在客户端拿 `hit.tag_code` 比对响应，那个字段根本不存在，
+       * 于是按标签过滤的条件永远不命中。
+       */
+      const tagCodes =
+        endpoint === EP.anomalyAnalysisList && leaf.filter?.tags?.length
+          ? leaf.filter.tags.join(',')
+          : null;
       return {
-        endpoint: EVENT_ENDPOINT[leaf.source] ?? EP.anomalyAnalysisList,
-        params: { thscode: subjectThscode(leaf.subject) },
+        endpoint,
+        params: {
+          thscode: subjectThscode(leaf.subject),
+          ...(tagCodes ? { tag_codes: tagCodes } : {}),
+        },
         leafIds: [leaf.id],
       };
+    }
 
     case 'heat':
       return {

@@ -22,7 +22,7 @@ import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { unwrapEnvelope, type SourceResult } from './envelope.js';
-import { EP, type SourceAdapter, type SourceRequest } from './types.js';
+import { EP, listKeyFor, type SourceAdapter, type SourceRequest } from './types.js';
 import { sanitizeDeep } from './sanitize.js';
 import { getClock } from '../clock.js';
 
@@ -155,7 +155,9 @@ export class ReplayAdapter implements SourceAdapter {
 
     // 深拷贝后改写，避免污染缓存
     const body = JSON.parse(JSON.stringify(fx));
-    let items: any[] = body?.data?.item ?? [];
+    // 列表所在的键随端点而异（龙虎榜是 stock_items，其余是 item）
+    const key = listKeyFor(endpoint);
+    let items: any[] = body?.data?.[key] ?? [];
 
     // 按参数过滤
     const wanted = parseThscodes(params);
@@ -165,6 +167,22 @@ export class ReplayAdapter implements SourceAdapter {
     if (endpoint === EP.pricesHistorical) {
       items = items.filter((it) => typeof it.date_ms === 'number');
     }
+    /**
+     * 异动标签：真实服务端按请求参数 `tag_codes` 过滤，响应里**不含**标签代码。
+     * 回放没有服务端，只能在本地模拟这个过滤。
+     *
+     * 这需要 fixture 里的记录带一个标签代码 —— 那是个**回放专用的模拟字段**
+     * （fixture 中名为 `_tag_code_mock`），契约里并不存在，也绝不能被当成契约字段。
+     * 若 fixture 缺该字段，则**不过滤**并保持原样：宁可少过滤，也不要假装过滤过。
+     */
+    if (endpoint === EP.anomalyAnalysisList && params.tag_codes) {
+      const wanted = params.tag_codes.split(',').map((s) => s.trim()).filter(Boolean);
+      const withMock = items.some((it) => typeof it._tag_code_mock === 'string');
+      if (withMock) {
+        items = items.filter((it) => wanted.includes(String(it._tag_code_mock)));
+      }
+    }
+
     // 热榜/涨跌停池的 period 过滤
     if (endpoint === EP.hotStockList && params.period) {
       body.data.period = params.period;
@@ -181,7 +199,7 @@ export class ReplayAdapter implements SourceAdapter {
       }
     }
 
-    body.data.item = items;
+    body.data[key] = items;
 
     // 归一化 data.timestamp：让数据"看起来是刚取的"
     if (typeof body.data.timestamp === 'number' || this.baseAgeMs > 0) {

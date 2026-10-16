@@ -13,6 +13,7 @@ import { SourceMesh } from './sourceMesh.js';
 import { EP } from './types.js';
 import { ManualClock, setClock, resetClock } from '../clock.js';
 import { assessFreshness } from './envelope.js';
+import { effectiveThresholdMs } from '../domain/freshness.js';
 import { normalizeDragonTigerChange, ratioToPct } from '../../shared/units.js';
 
 const FIXED_NOW = Date.parse('2026-10-15T15:05:00+08:00');
@@ -116,17 +117,30 @@ describe('ChaosAdapter —— 故障注入的确定性', () => {
     expect(r.reasonCode).toBe('RATE_LIMITED');
   });
 
-  it('TC-C6: stale_price 把数据时点推回 3 小时，过期判定命中', async () => {
+  it('TC-C6: stale_price 使数据时点超出该端点当前生效的阈值', async () => {
     const c = new ChaosAdapter();
     c.setScenario('stale_price');
     const r = await c.fetch<any>({ endpoint: EP.pricesSnapshot, params: {} });
     expect(r.ok).toBe(true);
     if (!r.ok) throw new Error('unreachable');
-    // 数据本身取到了，但时点是 3 小时前
+
+    // 数据本身取到了（不是拿不到），只是时点被推旧了
     expect(r.data.item.length).toBeGreaterThan(0);
-    const f = assessFreshness(r.dataTimestampMs, 5 * 60 * 1000, FIXED_NOW);
+
+    // 关键断言：不管几点跑，都必须真的超过**当前生效**的阈值。
+    // 新鲜度阈值在闭市后会放宽，所以这里不能硬编码"3 小时"。
+    const threshold = effectiveThresholdMs(EP.pricesSnapshot, FIXED_NOW);
+    const f = assessFreshness(r.dataTimestampMs, threshold, FIXED_NOW);
     expect(f.fresh).toBe(false);
-    expect(f.ageMs).toBe(3 * 3600 * 1000);
+    expect(f.ageMs).toBeGreaterThan(threshold);
+  });
+
+  it('stale_price 仍可通过显式 staleMs 指定推回时长', async () => {
+    const c = new ChaosAdapter();
+    c.setScenario('stale_price', { staleMs: 3 * 3600 * 1000 });
+    const r = await c.fetch<any>({ endpoint: EP.pricesSnapshot, params: {} });
+    if (!r.ok) throw new Error('unreachable');
+    expect(FIXED_NOW - r.dataTimestampMs!).toBe(3 * 3600 * 1000);
   });
 
   it('capability_denied → CAPABILITY_DENIED 且不可重试', async () => {
@@ -275,10 +289,10 @@ describe('TC-D5: 出站净化 —— 数据源自带的预测性字段必须被�
         'utf8',
       ),
     );
-    expect(raw.data.item[0]._source_explain_raw).toContain('成功率');
+    expect(raw.data.stock_items[0]._source_explain_raw).toContain('成功率');
 
     // 但经过适配器之后，它不能再出现
-    const first = r.data.item[0];
+    const first = r.data.stock_items[0];
     expect(first._source_explain_raw).toBeUndefined();
 
     // 且不能有任何字段残留预测性表述
@@ -295,11 +309,21 @@ describe('TC-D5: 出站净化 —— 数据源自带的预测性字段必须被�
     const a = new ReplayAdapter();
     const r = await a.fetch<any>({ endpoint: EP.dragonTigerList, params: {} });
     if (!r.ok) throw new Error('unreachable');
-    const first = r.data.item[0];
-    expect(typeof first.billboard_net_amt).toBe('number');
+    const first = r.data.stock_items[0];
+    expect(typeof first.net_value).toBe('number');
     expect(typeof first.change).toBe('number');
     expect(first.name).toBeTruthy();
-    expect(r.data.item.length).toBe(50);
+    expect(r.data.stock_items.length).toBe(50);
+  });
+
+  it('龙虎榜的列表键是与契约一致的 stock_items，而不是通用的 item', async () => {
+    const a = new ReplayAdapter();
+    const r = await a.fetch<any>({ endpoint: EP.dragonTigerList, params: {} });
+    if (!r.ok) throw new Error('unreachable');
+    // 契约：data.stock_items（股票维度）+ data.hot_money_items（游资维度）
+    expect(Array.isArray(r.data.stock_items)).toBe(true);
+    expect(r.data.item).toBeUndefined();
+    expect(Array.isArray(r.data.hot_money_items)).toBe(true);
   });
 
   it('正常的文字字段（行业、名称、原因）不被误删', async () => {
@@ -320,7 +344,7 @@ describe('TC-C8: 单位口径归一化', () => {
       params: {},
     });
     if (!r.ok) throw new Error('unreachable');
-    const item = r.data.item[0];
+    const item = r.data.stock_items[0];
     // fixture 按扶摇契约存的是小数
     expect(item.change).toBeLessThan(1);
     // 归一化后应落在合理的涨跌幅区间

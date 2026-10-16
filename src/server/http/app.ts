@@ -27,6 +27,14 @@ export interface AppContext {
   db: DatabaseSync;
   deps: EngineDeps;
   catalog: CatalogEntry[];
+  /**
+   * 数据来源的**事实描述**，由 index.ts 根据**实际装配的适配器**填写。
+   *
+   * 刻意不从环境变量推导：环境变量描述的是"用户想要什么"，而这里要报告的是
+   * "实际发生了什么"。二者一旦分离，界面就会在用户设了 live 却拿不到实时数据时
+   * 把回放数据标成实时数据 —— 那正是本项目最不能犯的错。
+   */
+  dataSource: { kind: 'replay' | 'live'; label: string; note: string };
   chaos: { activeScenario: ChaosScenario | null; setScenario: (s: ChaosScenario | null, o?: any) => void; clear: () => void };
   loadCalendar: () => Promise<number>;
   startScheduler: () => void;
@@ -47,7 +55,8 @@ export function createApp(ctx: AppContext): Express {
     res.json({
       ok: true,
       service: 'sentinel',
-      mode: process.env.SENTINEL_MODE ?? 'replay',
+      // 报告实际在用的适配器，而不是用户设的环境变量
+      mode: ctx.dataSource.kind,
       schedulerRunning: ctx.schedulerRunning(),
       chaos: ctx.chaos.activeScenario,
       calendarDays: repo.calendarCount(db),
@@ -62,12 +71,9 @@ export function createApp(ctx: AppContext): Express {
   app.get('/api/meta', (_req, res) => {
     res.json({
       ok: true,
-      // 如实披露数据来源，不假装是扶摇返回的
-      dataSource: process.env.SENTINEL_MODE === 'live' ? '扶摇 API（实时）' : '回放 fixture（公开行情源快照重建）',
-      dataSourceNote:
-        process.env.SENTINEL_MODE === 'live'
-          ? '通过 X-api-key 调用 fuyao.aicubes.cn'
-          : 'fixture 由东方财富/新浪公开行情于 2026-10-15 收盘后抓取，按扶摇契约重建信封结构。详见 fixtures/README.md',
+      // 如实披露数据来源，不假装是扶摇返回的。来源由实际适配器决定。
+      dataSource: ctx.dataSource.label,
+      dataSourceNote: ctx.dataSource.note,
       chaos: ctx.chaos.activeScenario,
       compliance: '本产品不预测涨跌、不承诺收益、不构成买卖建议；事实、推断与不确定信息严格区分。',
     });
@@ -314,6 +320,10 @@ export function createApp(ctx: AppContext): Express {
 
   // ────────────── 证据 ──────────────
 
+  app.get('/api/evidence/by-run/:runId', (req, res) => {
+    res.json({ ok: true, items: repo.listEvidenceByRun(db, req.params.runId) });
+  });
+
   app.get('/api/evidence/:id', (req, res) => {
     const e = repo.getEvidence(db, req.params.id);
     if (!e) return res.status(404).json({ ok: false, message: '证据不存在' });
@@ -387,7 +397,7 @@ export function createApp(ctx: AppContext): Express {
       ok: true,
       active: ctx.chaos.activeScenario,
       scenarios: [
-        { id: 'stale_price', label: '数据过期', desc: '把价格数据时点推回 3 小时' },
+        { id: 'stale_price', label: '数据过期', desc: '把数据时点推到当前生效阈值之外' },
         { id: 'conflict_price', label: '源冲突', desc: '备源给出 0.87% 的偏差' },
         { id: 'upstream_failure', label: '接口失败', desc: '上游返回 code 5003' },
         { id: 'rate_limited', label: '接口限流', desc: '返回 code 4001' },
@@ -399,6 +409,14 @@ export function createApp(ctx: AppContext): Express {
     });
   });
 
+  /**
+   * 故障注入开关。
+   *
+   * 关于作用域：从演示面板点击时**默认作用于所有端点**——
+   * 用户点「数据未就绪」时正在看的可能是价格任务，若按场景内置的窄作用域
+   * 只在异动端点上生效，点了会毫无反应，演示就砸了。
+   * 需要精准打击时显式传 endpoints（冒烟测试与单元测试就是这么用的）。
+   */
   app.post('/api/chaos', (req, res) => {
     const scenario = req.body?.scenario ?? null;
     if (scenario === null || scenario === 'none') {
@@ -406,7 +424,7 @@ export function createApp(ctx: AppContext): Express {
       repo.setAppState(db, 'chaos', null);
     } else {
       ctx.chaos.setScenario(scenario, {
-        endpoints: req.body?.endpoints,
+        endpoints: Array.isArray(req.body?.endpoints) ? req.body.endpoints : [],
         staleMs: req.body?.staleMs,
       });
       repo.setAppState(db, 'chaos', { scenario, at: ctx.deps.now() });

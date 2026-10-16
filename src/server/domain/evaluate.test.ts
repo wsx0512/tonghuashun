@@ -185,6 +185,57 @@ describe('三值逻辑：unknown 绝不塌缩为 false', () => {
   });
 });
 
+describe('TC-C7b: 源冲突时不得给出肯定结论', () => {
+  it('主备源对该字段不一致 → 判为 unknown 而非 false', async () => {
+    const root = cond('贵州茅台跌破1200元');
+    const adapter = new ReplayAdapter();
+    const bundle = await bundleFor(root, adapter);
+
+    // 模拟 SourceMesh 检出的冲突
+    const conflicts = [
+      {
+        thscode: '600519.SH',
+        field: 'last_price',
+        valueA: 1312.97,
+        sourceA: 'fuyao',
+        valueB: 1324.39,
+        sourceB: 'backup',
+        deltaPct: 0.0086,
+      },
+    ];
+
+    const r = evaluateRule({
+      root,
+      taskId: 't1',
+      ruleVersionId: 'v1',
+      runId: 'r1',
+      bundle,
+      conflicts,
+      now: FIXED_NOW,
+      subjectName: (code) => names.get(code) ?? code,
+    });
+
+    // 核心：不能因为"主源的值没到阈值"就断言条件未满足
+    expect(r.truth).toBe('unknown');
+    expect(r.truth).not.toBe(false);
+    expect(r.reasonCode).toBe('CONFLICT');
+    expect(r.degraded).toBe(true);
+
+    // 两个取值都要保留，让用户自己判断
+    const ev = r.leaves[0]!.evidence;
+    expect(ev.conflicts).toHaveLength(1);
+    expect(ev.conflicts![0]!.valueA).toBe(1312.97);
+    expect(ev.conflicts![0]!.valueB).toBe(1324.39);
+    expect(ev.narrative).toContain('冲突');
+  });
+
+  it('无冲突时正常判定，且不该出现 conflicts 字段', async () => {
+    const { result } = await evaluate('贵州茅台跌破1200元');
+    expect(result.leaves[0]!.evidence.conflicts).toBeUndefined();
+    expect(result.truth).toBe(false);
+  });
+});
+
 describe('可追溯性（TC-E1 ~ TC-E3）', () => {
   it('TC-E3: 每条 evidence 的五要素齐全', async () => {
     const { result } = await evaluate('贵州茅台跌破1200元');
@@ -244,6 +295,99 @@ describe('可追溯性（TC-E1 ~ TC-E3）', () => {
     const obs = result.leaves[0]!.evidence.observations[0]!;
     expect(obs.statisticBasis).toContain('20');
     expect(obs.source.endpoint).toBe('/api/a-share/prices/historical');
+  });
+});
+
+/**
+ * 契约对齐：字段名/容器名必须与扶摇契约一致。
+ *
+ * 这些用例守护的是一类**特别隐蔽**的 bug：代码读一个契约里不存在的字段，
+ * 在回放模式下"看起来能跑"（因为 fixture 是自造的），但真实数据下永远取不到值。
+ * 若三值逻辑又把它降级成 unknown，日志里只会看到"无法判定"，功能缺失被掩盖。
+ */
+describe('契约对齐：读的必须是契约里真实存在的字段', () => {
+  it('量比由历史 K 线派生，而不是读快照里不存在的字段', async () => {
+    const { result } = await evaluate('贵州茅台量比超过1');
+    const leaf = result.leaves[0]!;
+    const obs = leaf.evidence.observations[0]!;
+    // 扶摇快照契约（PriceSnapshotItem）没有 volume_ratio，必须走历史 K 线派生
+    expect(obs.source.endpoint).toBe('/api/a-share/prices/historical');
+    expect(leaf.reasonCode).toBe('OK');
+    expect(typeof obs.value).toBe('number');
+    expect(obs.unit).toBe('RATIO');
+    expect(obs.statisticBasis).toContain('平均成交量');
+  });
+
+  it('龙虎榜列表取自契约的 data.stock_items', async () => {
+    const adapter = new ReplayAdapter();
+    const root: Condition = {
+      type: 'event',
+      id: 'ev1',
+      subject: { kind: 'stock', thscode: '600869.SH' },
+      source: 'dragon_tiger_list',
+      filter: {},
+      presence: 'appears',
+    };
+    const bundle = await bundleFor(root, adapter);
+    const result = evaluateRule({
+      root,
+      taskId: 't1',
+      ruleVersionId: 'v1',
+      runId: 'r1',
+      bundle,
+      conflicts: [],
+      now: FIXED_NOW,
+      subjectName: (c) => names.get(c) ?? c,
+    });
+    // 600869.SH（远东股份）在 fixture 的 stock_items 里
+    expect(result.leaves[0]!.reasonCode).toBe('OK');
+    expect(result.truth).toBe(true);
+  });
+
+  it('龙虎榜净买入过滤读的是契约字段 net_value', async () => {
+    const adapter = new ReplayAdapter();
+    const mk = (gte: number): Condition => ({
+      type: 'event',
+      id: 'ev1',
+      subject: { kind: 'stock', thscode: '600869.SH' },
+      source: 'dragon_tiger_list',
+      filter: { netValueGte: gte },
+      presence: 'appears',
+    });
+    // fixture 里远东股份的 net_value = 264191075.24
+    for (const [gte, expected] of [
+      [1_0000_0000, true], // 1 亿 < 2.64 亿 → 命中
+      [10_0000_0000, false], // 10 亿 > 2.64 亿 → 不命中
+    ] as const) {
+      const root = mk(gte);
+      const bundle = await bundleFor(root, adapter);
+      const result = evaluateRule({
+        root,
+        taskId: 't1',
+        ruleVersionId: 'v1',
+        runId: 'r1',
+        bundle,
+        conflicts: [],
+        now: FIXED_NOW,
+        subjectName: (c) => names.get(c) ?? c,
+      });
+      expect(result.truth).toBe(expected);
+    }
+  });
+
+  it('异动标签过滤走请求参数 tag_codes，而不是比对响应里不存在的 tag_code', async () => {
+    const root: Condition = {
+      type: 'event',
+      id: 'ev1',
+      subject: { kind: 'stock', thscode: '002815.SZ' },
+      source: 'anomaly_analysis_list',
+      filter: { tags: ['LIMIT_UP'] },
+      presence: 'appears',
+    };
+    const needs = resolveDataNeeds(root);
+    const need = needs.find((n) => n.endpoint.includes('anomaly-analysis-list'))!;
+    expect(need).toBeTruthy();
+    expect(need.params.tag_codes).toBe('LIMIT_UP');
   });
 });
 

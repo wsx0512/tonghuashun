@@ -23,6 +23,7 @@ import type { SourceResult } from '../sources/envelope.js';
 import { fmtShanghai } from '../sources/envelope.js';
 import type { FieldComparison } from '../sources/sourceMesh.js';
 import { canonicalParams, collectLeaves, isMembershipEndpoint } from './dataNeeds.js';
+import { listKeyFor } from '../sources/types.js';
 import { effectiveThresholdMs, describeThreshold } from './freshness.js';
 import { render } from '../../shared/compliance/templates.js';
 import { scan } from '../../shared/compliance/banned.js';
@@ -305,9 +306,10 @@ function makeObservation(
 
 // ── 价格 ──
 
+// 量比不在此列：它不在快照契约里，须由历史 K 线派生（见 computeHistorical）
 const SNAPSHOT_SET = new Set([
   'last_price', 'price_change', 'price_change_ratio_pct', 'open_price', 'high_price',
-  'low_price', 'prev_price', 'volume', 'turnover', 'volume_ratio',
+  'low_price', 'prev_price', 'volume', 'turnover',
 ]);
 
 function metricUnit(metric: string): Unit {
@@ -437,6 +439,30 @@ function evalPriceLeaf(
   // 冲突检查
   const related = args.conflicts.filter((c) => c.thscode === thscode && c.field === leaf.metric);
 
+  /**
+   * 两个数据源对同一字段给出不一致的取值时，**不得给出肯定结论**。
+   *
+   * 依据：题目统一规则「数据缺失、冲突、过期或调用失败时不得静默生成'正常'结论」。
+   * 若在主备源吵架的情况下仍判「条件未满足」，那是对用户的一个肯定断言，
+   * 而这个断言建立在一个有争议的数字上。
+   *
+   * 因此冲突 → 该条件判为 unknown（无法判定），任务进 DEGRADED。
+   * 两个取值都会列在证据里，用户自己判断。
+   */
+  if (related.length > 0) {
+    const c = related[0]!;
+    return mkDegraded(
+      base,
+      'price',
+      'CONFLICT',
+      `数据源冲突：${c.sourceA}=${c.valueA} 与 ${c.sourceB}=${c.valueB} 相差 ${(c.deltaPct * 100).toFixed(2)}%，超过容忍度`,
+      name,
+      fmtShanghai(res.dataTimestampMs),
+      [obs],
+      { conflicts: related },
+    );
+  }
+
   const thresholdValue = leaf.value.kind === 'const' ? leaf.value.value : null;
   const passed = thresholdValue === null ? false : compare(value, leaf.operator, thresholdValue);
 
@@ -469,7 +495,6 @@ function evalPriceLeaf(
       passed,
     },
     freshness: { ageMs, thresholdMs: threshold, fresh: true },
-    ...(related.length ? { conflicts: related } : {}),
     claims: [
       {
         text: narrative,
@@ -480,20 +505,11 @@ function evalPriceLeaf(
     narrative,
   };
 
-  // 有冲突时即便主源可判定，也如实标注
-  let reasonCode: ReasonCode = 'OK';
-  if (related.length > 0) {
-    reasonCode = 'CONFLICT';
-    evidence.contributingFactors = [
-      `字段 ${leaf.metric} 在主备源间存在 ${(related[0]!.deltaPct * 100).toFixed(2)}% 的偏差，已按主源取值并标注`,
-    ];
-  }
-
   return {
     leafId: leaf.id,
     kind: 'price',
     truth: passed,
-    reasonCode,
+    reasonCode: 'OK',
     evidence,
   };
 }
@@ -530,6 +546,30 @@ function computeHistorical(
       const hi = Math.max(...highs);
       const dd = ((hi - last.close_price) / hi) * 100;
       return { value: Number(dd.toFixed(4)), basis: `距最近 ${n} 个交易日最高价的回撤` };
+    }
+
+    case 'volume_ratio': {
+      /**
+       * 量比 = 当日成交量 ÷ 近 N 个交易日的平均成交量。
+       *
+       * 为什么走历史 K 线而不是读快照字段：扶摇快照契约（`PriceSnapshotItem`）
+       * **没有**量比字段（全文档只有另一个端点的 `auction_volume_ratio`）。
+       * 早先把它当快照字段直读，于是任何量比条件都取不到值、恒判 unknown +
+       * EMPTY_DATA —— 功能等于没做，而且因为降级正确，看起来还挺"诚实"。
+       */
+      const n = Math.min(leaf.window?.days ?? 5, Math.max(sorted.length - 1, 0));
+      if (n <= 0 || typeof last.volume !== 'number') {
+        return { value: null, basis: '区间数据不足' };
+      }
+      const prior = sorted.slice(sorted.length - 1 - n, sorted.length - 1);
+      const vols = prior.map((b) => b.volume).filter((x: unknown) => typeof x === 'number');
+      if (vols.length === 0) return { value: null, basis: '区间数据不足' };
+      const avg = vols.reduce((a: number, b: number) => a + b, 0) / vols.length;
+      if (avg === 0) return { value: null, basis: '区间数据不足' };
+      return {
+        value: Number((last.volume / avg).toFixed(4)),
+        basis: `当日成交量 ÷ 近 ${vols.length} 个交易日平均成交量`,
+      };
     }
 
     default:
@@ -581,7 +621,8 @@ function evalEventLeaf(
   }
 
   const res = entry.result;
-  const items: any[] = (res.data as any)?.item ?? [];
+  // 列表键随端点而异：龙虎榜是 stock_items，其余是 item（见 types.ts listKeyFor）
+  const items: any[] = (res.data as any)?.[listKeyFor(endpoint)] ?? [];
   let hit = items.find((i: any) => i?.thscode === thscode);
 
   // 附加过滤
@@ -589,14 +630,15 @@ function evalEventLeaf(
     const cnt = hit.continue_day_cnt;
     if (typeof cnt !== 'number' || cnt < leaf.filter.minContinueDayCnt) hit = undefined;
   }
-  if (hit && leaf.filter.tags?.length) {
-    if (!leaf.filter.tags.includes(hit.tag_code)) hit = undefined;
-  }
+  // 标签过滤**不在这里做**：契约的响应记录没有标签代码字段，过滤由服务端按请求参数
+  // `tag_codes` 完成（见 dataNeeds.ts）。若在此比对 `tag_name` 展示名，等于拿代码去比
+  // 中文名，永远不命中 —— 那正是早先的 bug。
   if (hit && leaf.filter.monitorLabel) {
     if (hit.monitor_label !== leaf.filter.monitorLabel) hit = undefined;
   }
   if (hit && leaf.filter.netValueGte !== undefined) {
-    const net = hit.billboard_net_amt;
+    // 契约的龙虎榜净买入金额字段是 net_value
+    const net = hit.net_value;
     if (typeof net !== 'number' || net < leaf.filter.netValueGte) hit = undefined;
   }
 

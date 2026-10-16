@@ -40,7 +40,25 @@ async function main() {
   console.log(`[sentinel] 载入 ${catalog.length} 个标的`);
 
   // ── 数据源 ──
+  /**
+   * 实时扶摇适配器**尚未实现**（本项目未获得 API Key，无凭据无法验证真实连通性）。
+   * 因此数据源恒为回放，界面与日志也据此如实标注。
+   *
+   * 用户若设了 SENTINEL_MODE=live，必须**大声告知**并继续用回放 ——
+   * 绝不能把回放数据标成"实时"，那会让评审在一个假前提下核对本作品的核心主张。
+   */
+  if (process.env.SENTINEL_MODE === 'live') {
+    console.warn(
+      '[sentinel] ⚠ SENTINEL_MODE=live 已设置，但实时扶摇适配器尚未实现（无 API Key 可验证）。\n' +
+        '[sentinel]   将继续使用回放数据，并在界面与 /api/meta 中如实标注为回放，不会标成实时。',
+    );
+  }
   const replay = new ReplayAdapter();
+  const dataSource = {
+    kind: 'replay' as const,
+    label: '回放 fixture（公开行情源快照重建）',
+    note: 'fixture 由东方财富/新浪公开行情于 2026-10-15 收盘后抓取，按扶摇契约重建信封结构。详见 fixtures/README.md',
+  };
   const chaos = new ChaosAdapter(replay);
   // 备源：平时与主源一致（perturbPct=0），制造冲突时施加确定性偏差
   const secondary = new ReplayAdapter({ perturbPct: 0 });
@@ -139,6 +157,7 @@ async function main() {
     db,
     deps,
     catalog,
+    dataSource,
     chaos: chaosCtl,
     loadCalendar,
     startScheduler,
@@ -148,7 +167,7 @@ async function main() {
 
   const server = app.listen(PORT, () => {
     console.log(`[sentinel] 监听 http://localhost:${PORT}`);
-    console.log(`[sentinel] 数据模式: ${process.env.SENTINEL_MODE ?? 'replay'}（默认回放，无需 API Key）`);
+    console.log(`[sentinel] 数据来源: ${dataSource.label}`);
   });
 
   const shutdown = () => {

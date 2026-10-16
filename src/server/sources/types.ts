@@ -61,6 +61,22 @@ export const UNAVAILABLE_CAPABILITIES: { endpointPrefix: string; label: string }
   { endpointPrefix: '/api/futures/fundamentals', label: '期货F10宏观指标' },
 ];
 
+/**
+ * 各端点把记录列表放在 `data` 下的哪个键。
+ *
+ * 绝大多数端点是 `item`，但**龙虎榜不是**：契约返回 `data.stock_items`
+ * （另附 `data.hot_money_items`）。早先按 `item` 读取，真实数据下会取到空数组，
+ * 于是"登上龙虎榜"会被静默判成 false —— 正是本项目最要避免的那种错误。
+ */
+export const LIST_KEY: Record<string, string> = {
+  [EP.dragonTigerList]: 'stock_items',
+};
+
+/** 该端点的列表在 data 下的键名（默认 `item`） */
+export function listKeyFor(endpoint: string): string {
+  return LIST_KEY[endpoint] ?? 'item';
+}
+
 export function isUnavailable(endpoint: string): { label: string } | null {
   const hit = UNAVAILABLE_CAPABILITIES.find((c) => endpoint.startsWith(c.endpointPrefix));
   return hit ? { label: hit.label } : null;

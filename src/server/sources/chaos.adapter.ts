@@ -15,6 +15,7 @@ import { unwrapEnvelope } from './envelope.js';
 import { EP, type SourceAdapter, type SourceRequest } from './types.js';
 import { ReplayAdapter } from './replay.adapter.js';
 import { getClock } from '../clock.js';
+import { effectiveThresholdMs } from '../domain/freshness.js';
 
 export type ChaosScenario =
   | 'stale_price' // 数据过期：把 data.timestamp 推回过去
@@ -176,7 +177,15 @@ export class ChaosAdapter implements SourceAdapter {
     if (!base.ok) return base;
 
     if (scenario === 'stale_price') {
-      const staleMs = this.state.staleMs ?? 3 * 3600 * 1000; // 默认推回 3 小时
+      /**
+       * 默认的"推回多久"必须**按该端点当前生效的阈值来算**，不能写死 3 小时。
+       *
+       * 原因：新鲜度策略在闭市后会放宽阈值（收盘后的价格数据本就该是几小时前的），
+       * 若固定推回 3 小时，在某些时段会落在阈值之内，于是"注入过期"却判为新鲜——
+       * 演示就时灵时不灵了。这里取「当前阈值 + 1 小时」，保证任何时刻都真的过期。
+       */
+      const staleMs =
+        this.state.staleMs ?? effectiveThresholdMs(endpoint, getClock().now()) + 3600_000;
       const data = base.data as any;
       if (data && typeof data === 'object' && 'timestamp' in data) {
         data.timestamp = getClock().now() - staleMs;

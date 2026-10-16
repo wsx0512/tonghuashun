@@ -312,12 +312,17 @@ async function recordDragonTiger(dateIso: string) {
     change: typeof r.CHANGE_RATE === 'number' ? Number((r.CHANGE_RATE / 100).toFixed(6)) : null,
     turnover_rate: typeof r.TURNOVERRATE === 'number' ? Number((r.TURNOVERRATE / 100).toFixed(6)) : null,
     billboard_deal_amt: typeof r.BILLBOARD_DEAL_AMT === 'number' ? r.BILLBOARD_DEAL_AMT : null,
-    billboard_net_amt: typeof r.BILLBOARD_NET_AMT === 'number' ? r.BILLBOARD_NET_AMT : null,
+    /** 契约中龙虎榜净买入金额的字段名是 net_value（东方财富原始字段名是 BILLBOARD_NET_AMT） */
+    net_value: typeof r.BILLBOARD_NET_AMT === 'number' ? r.BILLBOARD_NET_AMT : null,
     /** 见上方合规说明——适配器必须丢弃此字段 */
     _source_explain_raw: r.EXPLAIN ?? null,
   }));
 
-  return envelope({ timestamp: lastCloseTs(new Date()), date: dateIso, item }, 'dragon-tiger');
+  // 契约的列表键是 stock_items（另有游资维度 hot_money_items，本次未录制该维度）
+  return envelope(
+    { timestamp: lastCloseTs(new Date()), date: dateIso, stock_items: item, hot_money_items: [] },
+    'dragon-tiger',
+  );
 }
 
 // ────────────────────────── ⑥ 异动解读（构造）──────────────────────────
@@ -341,7 +346,13 @@ async function recordAnomalyAnalysis(limitUpItems: any[]) {
     thscode: it.thscode,
     ticker: it.ticker,
     name: it.name,
-    tag_code: tagFor(it),
+    /**
+     * ⚠️ `_tag_code_mock` 是**回放专用**的模拟字段，契约里不存在。
+     * 真实服务端按请求参数 `tag_codes` 过滤，响应只回 `tag_name` 展示名；
+     * 回放没有服务端，只能靠这个字段在本地模拟过滤（见 replay.adapter.ts）。
+     * 前缀下划线是为了让它一眼可辨、不被误当成契约字段。
+     */
+    _tag_code_mock: tagFor(it),
     tag_name: it.price_change_ratio_pct >= 9.8 ? '涨停' : '快速拉升',
     limit_up_reason: it.industry ? `${it.industry}板块异动` : '个股资金异动',
     keyword_list: it.industry ? [it.industry, '资金流入'] : ['资金流入'],

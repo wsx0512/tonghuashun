@@ -36,29 +36,44 @@ export interface FactSlots {
   eventText?: string;
 }
 
-const opWord = (op: string): string =>
-  ({
-    '<': '低于',
-    '<=': '不高于',
-    '>': '高于',
-    '>=': '不低于',
-    '==': '等于',
-    '!=': '不等于',
-    between: '落在区间内',
-    cross_above: '上穿',
-    cross_below: '下穿',
-    in_top: '进入',
-  })[op] ?? '满足';
+const OP_WORD: Record<string, string> = {
+  '<': '低于',
+  '<=': '不高于',
+  '>': '高于',
+  '>=': '不低于',
+  '==': '等于',
+  '!=': '不等于',
+  between: '落在区间内',
+  cross_above: '上穿',
+  cross_below: '下穿',
+  in_top: '进入',
+};
 
-/** 价格类：命中 */
+const opWord = (op: string): string => OP_WORD[op] ?? '满足';
+
+/**
+ * 条件未满足时，直接陈述**实际的方向**，而不是在原文案前加「未」。
+ *
+ * 反例：「未不低于阈值 5%」——双重否定，读起来费劲还容易误解。
+ * 正例：「高于阈值 5%」。
+ */
+const OP_WORD_OPPOSITE: Record<string, string> = {
+  '<': '不低于',
+  '<=': '高于',
+  '>': '不高于',
+  '>=': '低于',
+  '==': '不等于',
+  '!=': '等于',
+};
+
+/** 价格类 */
 function priceHit(s: FactSlots, op: string, negation = false): string {
   const v = fmtQuantity(s.value ?? null, s.unit ?? 'CNY');
   const t = fmtQuantity(s.threshold ?? null, s.thresholdUnit ?? s.unit ?? 'CNY');
-  const cmp = opWord(op);
-  const head = negation
-    ? `${s.name} 当前值 ${v}，未${cmp}阈值 ${t}`
-    : `${s.name} 当前值 ${v}，${cmp}阈值 ${t}`;
-  return `${head}（数据时点 ${s.asOf ?? '未知'}${s.basis ? `，口径：${s.basis}` : ''}）。`;
+  const cmp = negation ? (OP_WORD_OPPOSITE[op] ?? opWord(op)) : opWord(op);
+  return `${s.name} 当前值 ${v}，${cmp}阈值 ${t}（数据时点 ${s.asOf ?? '未知'}${
+    s.basis ? `，口径：${s.basis}` : ''
+  }）。`;
 }
 
 /** 事件类：出现 */
@@ -67,10 +82,11 @@ function eventAppears(s: FactSlots): string {
 }
 
 /** 热度类 */
-function heatHit(s: FactSlots, op: string): string {
+function heatHit(s: FactSlots, op: string, negation = false): string {
   const v = fmtQuantity(s.value ?? null, 'RANK');
   const t = fmtQuantity(s.threshold ?? null, 'RANK');
-  return `${s.name} 当前热度排名${v}，${opWord(op)}阈值${t}（数据时点 ${s.asOf ?? '未知'}）。`;
+  const cmp = negation ? (OP_WORD_OPPOSITE[op] ?? opWord(op)) : opWord(op);
+  return `${s.name} 当前热度排名${v}，${cmp}阈值${t}（数据时点 ${s.asOf ?? '未知'}）。`;
 }
 
 /** 日历类 */
@@ -93,7 +109,7 @@ export function templateRecovered(s: FactSlots, desc: string): string {
 export function templateDegraded(reason: ReasonCode, s: FactSlots, detail: string): string {
   switch (reason) {
     case 'STALE':
-      return `⚠ 数据过期：${s.name} 的数据时点为 ${s.asOf ?? '未知'}，${detail}。本次无法判定——这**不等于**条件未满足。`;
+      return `⚠ 数据过期：${s.name} 的数据时点为 ${s.asOf ?? '未知'}，${detail}。本次无法判定——这不等于条件未满足。`;
     case 'CONFLICT':
       return `⚠ 数据源冲突：${s.name} 的字段在不同来源间存在分歧（${detail}）。已标注差异，未静默取值，请以官方行情为准。`;
     case 'FAILURE':
@@ -149,7 +165,7 @@ export function render(input: RenderInput): string {
         ? eventAppears(slots)
         : `${slots.name} 于 ${slots.date ?? slots.asOf ?? '近期'} 未出现${slots.eventText ?? '该事件'}。`;
     case 'heat':
-      return heatHit(slots, input.operator ?? '<=');
+      return heatHit(slots, input.operator ?? '<=', status === 'false');
     case 'calendar':
       return calendarHit(slots, input.predicate ?? 'is_trading_day');
   }

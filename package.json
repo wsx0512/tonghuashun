@@ -17,7 +17,8 @@
     "record": "tsx tools/record-fixtures.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smoke": "tsx tools/smoke.ts"
   },
   "dependencies": {
     "express": "^5.1.0",

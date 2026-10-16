@@ -5,7 +5,7 @@
   "data": {
     "timestamp": 1792047600000,
     "date": "2026-10-15",
-    "item": [
+    "stock_items": [
       {
         "thscode": "600869.SH",
         "ticker": "600869",
@@ -15,8 +15,8 @@
         "change": 0.067927,
         "turnover_rate": 0.109204,
         "billboard_deal_amt": 792247256.7,
-        "billboard_net_amt": 264191075.24,
-        "_source_explain_raw": "普通席位买入，成功率44.94%"
+        "_source_explain_raw": "普通席位买入，成功率44.94%",
+        "net_value": 264191075.24
       },
       {
         "thscode": "002945.SZ",
@@ -27,8 +27,8 @@
         "change": 0.100071,
         "turnover_rate": 0.030112,
         "billboard_deal_amt": 390258701.22,
-        "billboard_net_amt": 192744423.1,
-        "_source_explain_raw": "1家机构买入，成功率40.76%"
+        "_source_explain_raw": "1家机构买入，成功率40.76%",
+        "net_value": 192744423.1
       },
       {
         "thscode": "600721.SH",
@@ -39,8 +39,8 @@
         "change": 0.100457,
         "turnover_rate": 0.150122,
         "billboard_deal_amt": 340395928,
-        "billboard_net_amt": 191442766,
-        "_source_explain_raw": "买一主买，成功率43.17%"
+        "_source_explain_raw": "买一主买，成功率43.17%",
+        "net_value": 191442766
       },
       {
         "thscode": "301569.SZ",
@@ -51,8 +51,8 @@
         "change": 4.017143,
         "turnover_rate": 0.797881,
         "billboard_deal_amt": 296017771.26,
-        "billboard_net_amt": 137251182.34,
-        "_source_explain_raw": "西藏自治区资金买入，成功率32.10%"
+        "_source_explain_raw": "西藏自治区资金买入，成功率32.10%",
+        "net_value": 137251182.34
       },
       {
         "thscode": "301282.SZ",
@@ -63,8 +63,8 @@
         "change": 0.2,
         "turnover_rate": 0.06562,
         "billboard_deal_amt": 291014993.6,
-        "billboard_net_amt": 120750993.2,
-        "_source_explain_raw": "1家机构买入，成功率39.49%"
+        "_source_explain_raw": "1家机构买入，成功率39.49%",
+        "net_value": 120750993.2
       },
       {
         "thscode": "603230.SH",
@@ -75,8 +75,8 @@
         "change": 0.1,
         "turnover_rate": 0.187411,
         "billboard_deal_amt": 243572200,
-        "billboard_net_amt": 114205206,
-        "_source_explain_raw": "普通席位买入，成功率49.55%"
+        "_source_explain_raw": "普通席位买入，成功率49.55%",
+        "net_value": 114205206
       },
       {
         "thscode": "300111.SZ",
@@ -87,8 +87,8 @@
         "change": 0.200647,
         "turnover_rate": 0.187772,
         "billboard_deal_amt": 246974852.21,
-        "billboard_net_amt": 108413303.31,
-        "_source_explain_raw": "2家机构买入，成功率43.09%"
+        "_source_explain_raw": "2家机构买入，成功率43.09%",
+        "net_value": 108413303.31
       },
       {
         "thscode": "000892.SZ",
@@ -99,8 +99,8 @@
         "change": 0.062378,
         "turnover_rate": 0.378981,
         "billboard_deal_amt": 449945086.36,
-        "billboard_net_amt": 107951727.8,
-        "_source_explain_raw": "普通席位买入，成功率41.59%"
+        "_source_explain_raw": "普通席位买入，成功率41.59%",
+        "net_value": 107951727.8
       },
       {
         "thscode": "301282.SZ",
@@ -111,8 +111,8 @@
         "change": 0.2,
         "turnover_rate": 0.06562,
         "billboard_deal_amt": 734206639.01,
-        "billboard_net_amt": 103602195.59,
-        "_source_explain_raw": "3家机构买入，成功率21.57%"
+        "_source_explain_raw": "3家机构买入，成功率21.57%",
+        "net_value": 103602195.59
       },
       {
         "thscode": "688552.SH",
@@ -123,8 +123,8 @@
         "change": 0.073946,
         "turnover_rate": 0.042654,
         "billboard_deal_amt": 493787907.99,
-        "billboard_net_amt": 103582468.61,
-        "_source_explain_raw": "2家机构买入，成功率42.38%"
+        "_source_explain_raw": "2家机构买入，成功率42.38%",
+        "net_value": 103582468.61
       },
       {
         "thscode": "002639.SZ",
@@ -135,8 +135,8 @@
         "change": 0.011184,
         "turnover_rate": 0.26392,
         "billboard_deal_amt": 1540446525.26,
-        "billboard_net_amt": 98912589.7,
-        "_source_explain_raw": "3家机构买入，成功率39.91%"
+        "_source_explain_raw": "3家机构买入，成功率39.91%",
+        "net_value": 98912589.7
       },
       {
         "thscode": "603533.SH",
@@ -147,8 +147,8 @@
         "change": -0.030414,
         "turnover_rate": 0.255712,
         "billboard_deal_amt": 941266086.26,
-        "billboard_net_amt": 98578044.18,
-        "_source_explain_raw": "普通席位卖出，成功率43.34%"
+        "_source_explain_raw": "普通席位卖出，成功率43.34%",
+        "net_value": 98578044.18
       },
       {
         "thscode": "001246.SZ",
@@ -159,8 +159,8 @@
         "change": -0.012077,
         "turnover_rate": 0.276472,
         "billboard_deal_amt": 312423933.65,
-        "billboard_net_amt": 92039335.31,
-        "_source_explain_raw": "西藏自治区资金卖出，成功率41.50%"
+        "_source_explain_raw": "西藏自治区资金卖出，成功率41.50%",
+        "net_value": 92039335.31
       },
       {
         "thscode": "605189.SH",
@@ -171,8 +171,8 @@
         "change": 0.099815,
         "turnover_rate": 0.171024,
         "billboard_deal_amt": 248320809.76,
-        "billboard_net_amt": 88475041.84,
-        "_source_explain_raw": "普通席位买入，成功率53.94%"
+        "_source_explain_raw": "普通席位买入，成功率53.94%",
+        "net_value": 88475041.84
       },
       {
         "thscode": "002134.SZ",
@@ -183,8 +183,8 @@
         "change": 0.099864,
         "turnover_rate": 0.109467,
         "billboard_deal_amt": 317533985,
-        "billboard_net_amt": 84632629,
-        "_source_explain_raw": "2家机构买入，成功率31.63%"
+        "_source_explain_raw": "2家机构买入，成功率31.63%",
+        "net_value": 84632629
       },
       {
         "thscode": "002134.SZ",
@@ -195,8 +195,8 @@
         "change": 0.099864,
         "turnover_rate": 0.109467,
         "billboard_deal_amt": 317533985,
-        "billboard_net_amt": 84632629,
-        "_source_explain_raw": "2家机构买入，成功率31.63%"
+        "_source_explain_raw": "2家机构买入，成功率31.63%",
+        "net_value": 84632629
       },
       {
         "thscode": "600812.SH",
@@ -207,8 +207,8 @@
         "change": 0.100503,
         "turnover_rate": 0.194838,
         "billboard_deal_amt": 364522093.26,
-        "billboard_net_amt": 76238626.62,
-        "_source_explain_raw": "普通席位买入，成功率48.66%"
+        "_source_explain_raw": "普通席位买入，成功率48.66%",
+        "net_value": 76238626.62
       },
       {
         "thscode": "600127.SH",
@@ -219,8 +219,8 @@
         "change": -0.090108,
         "turnover_rate": 0.338383,
         "billboard_deal_amt": 760644455.81,
-        "billboard_net_amt": 71917668.57,
-        "_source_explain_raw": "卖一主卖，成功率43.43%"
+        "_source_explain_raw": "卖一主卖，成功率43.43%",
+        "net_value": 71917668.57
       },
       {
         "thscode": "603386.SH",
@@ -231,8 +231,8 @@
         "change": 0.099946,
         "turnover_rate": 0.075806,
         "billboard_deal_amt": 508924548.5,
-        "billboard_net_amt": 52068847.5,
-        "_source_explain_raw": "普通席位买入，成功率47.10%"
+        "_source_explain_raw": "普通席位买入，成功率47.10%",
+        "net_value": 52068847.5
       },
       {
         "thscode": "000995.SZ",
@@ -243,8 +243,8 @@
         "change": 0.100412,
         "turnover_rate": 0.149749,
         "billboard_deal_amt": 332788555.62,
-        "billboard_net_amt": 47747352.38,
-        "_source_explain_raw": "2家机构买入，成功率35.62%"
+        "_source_explain_raw": "2家机构买入，成功率35.62%",
+        "net_value": 47747352.38
       },
       {
         "thscode": "601811.SH",
@@ -255,8 +255,8 @@
         "change": 0.100215,
         "turnover_rate": 0.080946,
         "billboard_deal_amt": 443952936.14,
-        "billboard_net_amt": 44828789.4,
-        "_source_explain_raw": "普通席位买入，成功率40.70%"
+        "_source_explain_raw": "普通席位买入，成功率40.70%",
+        "net_value": 44828789.4
       },
       {
         "thscode": "127116.SZ",
@@ -267,8 +267,8 @@
         "change": 0.43,
         "turnover_rate": null,
         "billboard_deal_amt": 174416437,
-        "billboard_net_amt": 32163963,
-        "_source_explain_raw": null
+        "_source_explain_raw": null,
+        "net_value": 32163963
       },
       {
         "thscode": "600668.SH",
@@ -279,8 +279,8 @@
         "change": 0.100551,
         "turnover_rate": 0.083031,
         "billboard_deal_amt": 126806553.73,
-        "billboard_net_amt": 28131409.83,
-        "_source_explain_raw": "买一主买，成功率43.23%"
+        "_source_explain_raw": "买一主买，成功率43.23%",
+        "net_value": 28131409.83
       },
       {
         "thscode": "920627.BJ",
@@ -291,8 +291,8 @@
         "change": 0.079695,
         "turnover_rate": 0.267313,
         "billboard_deal_amt": 82037419.11,
-        "billboard_net_amt": 25523175.53,
-        "_source_explain_raw": "1家机构买入，成功率38.35%"
+        "_source_explain_raw": "1家机构买入，成功率38.35%",
+        "net_value": 25523175.53
       },
       {
         "thscode": "002768.SZ",
@@ -303,8 +303,8 @@
         "change": -0.024587,
         "turnover_rate": 0.080301,
         "billboard_deal_amt": 486733546.33,
-        "billboard_net_amt": 20647156.63,
-        "_source_explain_raw": "3家机构卖出，成功率27.12%"
+        "_source_explain_raw": "3家机构卖出，成功率27.12%",
+        "net_value": 20647156.63
       },
       {
         "thscode": "001359.SZ",
@@ -315,8 +315,8 @@
         "change": -0.100013,
         "turnover_rate": 0.077957,
         "billboard_deal_amt": 153686627.58,
-        "billboard_net_amt": 20220699.42,
-        "_source_explain_raw": "2家机构卖出，成功率31.43%"
+        "_source_explain_raw": "2家机构卖出，成功率31.43%",
+        "net_value": 20220699.42
       },
       {
         "thscode": "603172.SH",
@@ -327,8 +327,8 @@
         "change": 0.100214,
         "turnover_rate": 0.037976,
         "billboard_deal_amt": 49100924.8,
-        "billboard_net_amt": 15929116.8,
-        "_source_explain_raw": "1家机构买入，成功率43.98%"
+        "_source_explain_raw": "1家机构买入，成功率43.98%",
+        "net_value": 15929116.8
       },
       {
         "thscode": "601811.SH",
@@ -339,8 +339,8 @@
         "change": 0.100215,
         "turnover_rate": 0.080946,
         "billboard_deal_amt": 270296644.68,
-        "billboard_net_amt": 13010396.86,
-        "_source_explain_raw": "普通席位买入，成功率34.63%"
+        "_source_explain_raw": "普通席位买入，成功率34.63%",
+        "net_value": 13010396.86
       },
       {
         "thscode": "601118.SH",
@@ -351,8 +351,8 @@
         "change": -0.100145,
         "turnover_rate": 0.044545,
         "billboard_deal_amt": 354855026.46,
-        "billboard_net_amt": 12101339.34,
-        "_source_explain_raw": "1家机构卖出，成功率45.95%"
+        "_source_explain_raw": "1家机构卖出，成功率45.95%",
+        "net_value": 12101339.34
       },
       {
         "thscode": "301591.SZ",
@@ -363,8 +363,8 @@
         "change": 0.017293,
         "turnover_rate": 0.355157,
         "billboard_deal_amt": 164310802.7,
-        "billboard_net_amt": 9113161.26000001,
-        "_source_explain_raw": "5家机构买入，成功率35.25%"
+        "_source_explain_raw": "5家机构买入，成功率35.25%",
+        "net_value": 9113161.26000001
       },
       {
         "thscode": "920779.BJ",
@@ -375,8 +375,8 @@
         "change": 0.086988,
         "turnover_rate": 0.28961,
         "billboard_deal_amt": 67765825.21,
-        "billboard_net_amt": 8581325.37,
-        "_source_explain_raw": "1家机构买入，成功率29.80%"
+        "_source_explain_raw": "1家机构买入，成功率29.80%",
+        "net_value": 8581325.37
       },
       {
         "thscode": "111024.SH",
@@ -387,8 +387,8 @@
         "change": 0.132374,
         "turnover_rate": null,
         "billboard_deal_amt": 8433916270,
-        "billboard_net_amt": 8427710,
-        "_source_explain_raw": null
+        "_source_explain_raw": null,
+        "net_value": 8427710
       },
       {
         "thscode": "002058.SZ",
@@ -399,8 +399,8 @@
         "change": 0.062192,
         "turnover_rate": 0.187763,
         "billboard_deal_amt": 96880056.6,
-        "billboard_net_amt": 2302764.04,
-        "_source_explain_raw": "2家机构买入，成功率27.88%"
+        "_source_explain_raw": "2家机构买入，成功率27.88%",
+        "net_value": 2302764.04
       },
       {
         "thscode": "301139.SZ",
@@ -411,8 +411,8 @@
         "change": -0.036145,
         "turnover_rate": 0.131291,
         "billboard_deal_amt": 4731833.19,
-        "billboard_net_amt": 592339.23,
-        "_source_explain_raw": "主力做T，成功率21.57%"
+        "_source_explain_raw": "主力做T，成功率21.57%",
+        "net_value": 592339.23
       },
       {
         "thscode": "920268.BJ",
@@ -423,8 +423,8 @@
         "change": 0.034942,
         "turnover_rate": 0.248578,
         "billboard_deal_amt": 31957004.91,
-        "billboard_net_amt": -835520.449999999,
-        "_source_explain_raw": "1家机构买入，成功率34.23%"
+        "_source_explain_raw": "1家机构买入，成功率34.23%",
+        "net_value": -835520.449999999
       },
       {
         "thscode": "002696.SZ",
@@ -435,8 +435,8 @@
         "change": 0.100513,
         "turnover_rate": 0.223693,
         "billboard_deal_amt": 189568108.78,
-        "billboard_net_amt": -1538883.58000001,
-        "_source_explain_raw": "1家机构买入，成功率45.15%"
+        "_source_explain_raw": "1家机构买入，成功率45.15%",
+        "net_value": -1538883.58000001
       },
       {
         "thscode": "920157.BJ",
@@ -447,8 +447,8 @@
         "change": -0.033333,
         "turnover_rate": 0.310834,
         "billboard_deal_amt": 67962206.13,
-        "billboard_net_amt": -3683910.81,
-        "_source_explain_raw": "1家机构卖出，成功率53.68%"
+        "_source_explain_raw": "1家机构卖出，成功率53.68%",
+        "net_value": -3683910.81
       },
       {
         "thscode": "603096.SH",
@@ -459,8 +459,8 @@
         "change": 0.007802,
         "turnover_rate": 0.287109,
         "billboard_deal_amt": 152695029.66,
-        "billboard_net_amt": -5439564.58,
-        "_source_explain_raw": "普通席位买入，成功率41.06%"
+        "_source_explain_raw": "普通席位买入，成功率41.06%",
+        "net_value": -5439564.58
       },
       {
         "thscode": "603096.SH",
@@ -471,8 +471,8 @@
         "change": 0.007802,
         "turnover_rate": 0.287109,
         "billboard_deal_amt": 152695029.66,
-        "billboard_net_amt": -5439564.58,
-        "_source_explain_raw": "普通席位买入，成功率41.06%"
+        "_source_explain_raw": "普通席位买入，成功率41.06%",
+        "net_value": -5439564.58
       },
       {
         "thscode": "920201.BJ",
@@ -483,8 +483,8 @@
         "change": 0.133313,
         "turnover_rate": 0.489646,
         "billboard_deal_amt": 56027722.09,
-        "billboard_net_amt": -6341696.15,
-        "_source_explain_raw": "1家机构买入，成功率44.64%"
+        "_source_explain_raw": "1家机构买入，成功率44.64%",
+        "net_value": -6341696.15
       },
       {
         "thscode": "002692.SZ",
@@ -495,8 +495,8 @@
         "change": -0.099099,
         "turnover_rate": 0.108237,
         "billboard_deal_amt": 50116846,
-        "billboard_net_amt": -9819160,
-        "_source_explain_raw": "1家机构卖出，成功率39.67%"
+        "_source_explain_raw": "1家机构卖出，成功率39.67%",
+        "net_value": -9819160
       },
       {
         "thscode": "600792.SH",
@@ -507,8 +507,8 @@
         "change": -0.1,
         "turnover_rate": 0.079744,
         "billboard_deal_amt": 113352737.99,
-        "billboard_net_amt": -11157741.99,
-        "_source_explain_raw": "卖一主卖，成功率41.52%"
+        "_source_explain_raw": "卖一主卖，成功率41.52%",
+        "net_value": -11157741.99
       },
       {
         "thscode": "603968.SH",
@@ -519,8 +519,8 @@
         "change": -0.1,
         "turnover_rate": 0.142575,
         "billboard_deal_amt": 95057206,
-        "billboard_net_amt": -11961658,
-        "_source_explain_raw": "普通席位卖出，成功率43.05%"
+        "_source_explain_raw": "普通席位卖出，成功率43.05%",
+        "net_value": -11961658
       },
       {
         "thscode": "000530.SZ",
@@ -531,8 +531,8 @@
         "change": 0.1,
         "turnover_rate": 0.410496,
         "billboard_deal_amt": 269378086.69,
-        "billboard_net_amt": -13941659.23,
-        "_source_explain_raw": "1家机构买入，成功率26.59%"
+        "_source_explain_raw": "1家机构买入，成功率26.59%",
+        "net_value": -13941659.23
       },
       {
         "thscode": "000530.SZ",
@@ -543,8 +543,8 @@
         "change": 0.1,
         "turnover_rate": 0.410496,
         "billboard_deal_amt": 269378086.69,
-        "billboard_net_amt": -13941659.23,
-        "_source_explain_raw": "1家机构买入，成功率26.59%"
+        "_source_explain_raw": "1家机构买入，成功率26.59%",
+        "net_value": -13941659.23
       },
       {
         "thscode": "002343.SZ",
@@ -555,8 +555,8 @@
         "change": 0.1,
         "turnover_rate": 0.161722,
         "billboard_deal_amt": 200769658.7,
-        "billboard_net_amt": -18240699.3,
-        "_source_explain_raw": "普通席位买入，成功率61.79%"
+        "_source_explain_raw": "普通席位买入，成功率61.79%",
+        "net_value": -18240699.3
       },
       {
         "thscode": "002917.SZ",
@@ -567,8 +567,8 @@
         "change": -0.1,
         "turnover_rate": 0.117434,
         "billboard_deal_amt": 69072932.53,
-        "billboard_net_amt": -18594024.37,
-        "_source_explain_raw": "3家机构卖出，成功率29.16%"
+        "_source_explain_raw": "3家机构卖出，成功率29.16%",
+        "net_value": -18594024.37
       },
       {
         "thscode": "600693.SH",
@@ -579,8 +579,8 @@
         "change": -0.100082,
         "turnover_rate": 0.007057,
         "billboard_deal_amt": 30121524.73,
-        "billboard_net_amt": -18660068.73,
-        "_source_explain_raw": "普通席位卖出，成功率30.11%"
+        "_source_explain_raw": "普通席位卖出，成功率30.11%",
+        "net_value": -18660068.73
       },
       {
         "thscode": "301041.SZ",
@@ -591,8 +591,8 @@
         "change": 0.052551,
         "turnover_rate": 0.309866,
         "billboard_deal_amt": 287398981.6,
-        "billboard_net_amt": -19545667.2,
-        "_source_explain_raw": "5家机构买入，成功率24.41%"
+        "_source_explain_raw": "5家机构买入，成功率24.41%",
+        "net_value": -19545667.2
       },
       {
         "thscode": "301513.SZ",
@@ -603,9 +603,10 @@
         "change": 0.039048,
         "turnover_rate": 0.415658,
         "billboard_deal_amt": 94069119.37,
-        "billboard_net_amt": -20105664.63,
-        "_source_explain_raw": "2家机构买入，成功率28.72%"
+        "_source_explain_raw": "2家机构买入，成功率28.72%",
+        "net_value": -20105664.63
       }
-    ]
+    ],
+    "hot_money_items": []
   }
 }
