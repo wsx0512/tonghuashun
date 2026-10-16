@@ -20,7 +20,7 @@ import type {
 } from '../../shared/dsl/types.js';
 import { subjectCode } from '../../shared/dsl/types.js';
 import type { SourceResult } from '../sources/envelope.js';
-import { fmtShanghai } from '../sources/envelope.js';
+import { fmtShanghai, assessFreshness } from '../sources/envelope.js';
 import type { FieldComparison } from '../sources/sourceMesh.js';
 import { canonicalParams, collectLeaves, isMembershipEndpoint } from './dataNeeds.js';
 import { listKeyFor } from '../sources/types.js';
@@ -335,6 +335,33 @@ const METRIC_LABEL: Record<string, string> = {
   return_pct_window: '区间累计涨跌幅',
   drawdown_from_high_pct: '区间最大回撤',
 };
+
+/**
+ * 事件 / 热度 / 日历类叶子的时效。
+ *
+ * 这些叶子走的是**清单成员资格**语义（今天有没有涨停、有没有上榜），
+ * 因此**不因数据时点旧而降级** —— 这是刻意设计，见 README 已知边界。
+ *
+ * 但证据里的时效数字**必须是真的**。早先这里写死 `ageMs: 0, fresh: true`，
+ * 等于宣称"数据是 0 分钟前的"，而实际上根本没测过。
+ * 一个编造的时效数字比没有更糟：它看起来像一条可核对的事实。
+ * 所以这里就地测量，并把"为什么不因此降级"写进 note，避免读者把它当成矛盾。
+ */
+function listFreshness(
+  res: { dataTimestampMs?: number | null },
+  endpoint: string,
+  now: number,
+  kind: '事件' | '热度' | '日历',
+): { ageMs: number | null; thresholdMs: number; fresh: boolean; note?: string } {
+  const thresholdMs = effectiveThresholdMs(endpoint, now);
+  const a = assessFreshness(res.dataTimestampMs ?? null, thresholdMs, now);
+  return {
+    ageMs: a.ageMs,
+    thresholdMs,
+    fresh: a.fresh,
+    note: `${kind}类条件按清单成员资格判定，不因数据时点旧而降级${a.note ? `（${a.note}）` : ''}`,
+  };
+}
 
 function evalPriceLeaf(
   leaf: Extract<Leaf, { type: 'price' }>,
@@ -673,7 +700,7 @@ function evalEventLeaf(
       ...base,
       status: passed ? 'true' : 'false',
       observations: [obs],
-      freshness: { ageMs: 0, thresholdMs: effectiveThresholdMs(endpoint, args.now), fresh: true },
+      freshness: listFreshness(res, endpoint, args.now, '事件'),
       claims: [{ text: narrative, type: 'fact', citationFields: ['thscode'] }],
       narrative,
     },
@@ -728,7 +755,7 @@ function evalHeatLeaf(
         observations: [
           makeObservation('热度排名', 'rank', null, 'RANK', entry, res, res.dataTimestampMs, '未进入当日热榜'),
         ],
-        freshness: { ageMs: 0, thresholdMs: effectiveThresholdMs(endpoint, args.now), fresh: true },
+        freshness: listFreshness(res, endpoint, args.now, '热度'),
         claims: [{ text: narrative, type: 'fact', citationFields: ['rank'] }],
         narrative,
       },
@@ -783,7 +810,7 @@ function evalHeatLeaf(
         unit: 'RANK',
         passed,
       },
-      freshness: { ageMs: 0, thresholdMs: effectiveThresholdMs(endpoint, args.now), fresh: true },
+      freshness: listFreshness(res, endpoint, args.now, '热度'),
       claims: [{ text: narrative, type: 'fact', citationFields: [field] }],
       narrative,
     },
@@ -863,7 +890,7 @@ function evalCalendarLeaf(
       observations: [
         makeObservation('交易日历', 'date', todayStr, null, entry, res, res.dataTimestampMs, 'A股交易日序列'),
       ],
-      freshness: { ageMs: 0, thresholdMs: effectiveThresholdMs('/api/a-share/calendar/trading-days', args.now), fresh: true },
+      freshness: listFreshness(res, '/api/a-share/calendar/trading-days', args.now, '日历'),
       claims: [{ text: narrative, type: 'fact', citationFields: ['date'] }],
       narrative,
     },

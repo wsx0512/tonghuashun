@@ -42,7 +42,7 @@ npm run start     # 构建前端并启动服务
 其他命令：
 
 ```bash
-npm test          # 180 个单元/集成测试
+npm test          # 186 个单元/集成测试
 npm run smoke     # 端到端冒烟测试（需服务已启动），31 项检查
 npm run typecheck # 类型检查
 npm run record    # 重新从公开行情源生成 fixture（可选）
@@ -347,21 +347,35 @@ Fixture 由 [`tools/record-fixtures.ts`](tools/record-fixtures.ts) 于 **2026-10
 **从历史 K 线派生**（量比 = 当日成交量 ÷ 近 N 日平均成交量）。见
 [`docs/AI-USAGE.md`](docs/AI-USAGE.md) 第 3.15 条。
 
-#### 尚未对齐的四处（如实列出）
+#### 请求参数：现已全部落在契约定义的参数上
 
 同一轮核对还查出四处**与契约不符的请求参数**。它们**只在实时模式下才会咬人**
-（回放适配器忽略除 `thscode` 外的大部分参数），所以当前不影响任何判定结果，
-本次**未修**，列在这里而不是假装不存在：
+（回放适配器忽略除 `thscode` / `thscodes` 外的参数），所以从未影响过任何判定结果——
+但"回放看不出来"恰恰是最危险的一点，因此已按契约文本逐条修正，并补了断言：
 
-| 端点 | 问题 | 实时下的后果 |
+| 端点 | 原来的问题 | 现在的做法 |
 |---|---|---|
-| `prices/historical` | 缺必填的 `start` / `end`，且发了契约中没有的 `days` | 报 `code=1001` |
-| `hot-stock-rank-trend` | 缺必填的 `start_date` / `end_date`，且发了非该端点的 `period` | 报 `code=1001` |
-| `anomaly-analysis-stock` | 发 `thscode`，契约要求 `thscodes` | 报 `code=1001` |
-| `abnormal-monitor-list` | 契约响应**不含** `data.timestamp`，而代码锚定它取数据时点 | 时点显示为「未知」 |
+| `prices/historical` | 缺必填的 `start` / `end`，发的是契约里没有的 `days` | 按窗口天数换算成毫秒时间戳的 `start` / `end`；超 10 年自动夹紧（契约 `code=1003` 的界限） |
+| `hot-stock-rank-trend` | 缺必填的 `start_date` / `end_date`，发的是别处的 `period` | 发 `thscode` + `yyyy-MM-dd` 的 `start_date` / `end_date` |
+| `anomaly-analysis-stock` | 发单数 `thscode` | 改发契约要求的复数 `thscodes` |
+| 涨跌停池 / 龙虎榜 / 异动监控等 | 被统一塞了一个契约里没有的 `thscode` | 不再发送；这些是"整份清单"语义，由评测器在清单里做客户端过滤 |
 
-之所以现在不改：**没有 Key 就无法验证改对没有**，改了也只是把"未经验证的代码"换个样子。
-实时适配器（见下文）实现时应当一并修掉这四处。
+**关于 `abnormal-monitor-list` 的时点**：该端点的契约响应**不含** `data.timestamp`。
+代码不编造时点——证据里如实显示「未知时点」，并说明原因。
+
+#### 顺带修掉的一处"编造的数字"
+
+事件 / 热度 / 日历类的证据里，时效字段曾被写死成 `ageMs: 0, fresh: true`——
+等于宣称"数据是 0 分钟前的"，而实际上**根本没测过**。现已改为就地测量真实年龄
+（复用 `assessFreshness`）。这类叶子走"清单成员资格"语义、**不因数据时点旧而降级**，
+所以当数据确实偏旧时，界面会同时给出原因，避免读者把它当成矛盾：
+
+```
+时效：不新鲜 · 数据年龄 20 小时 · 阈值 2 小时
+↳ 热度类条件按清单成员资格判定，不因数据时点旧而降级（数据时点距今 1204 分钟，超过阈值 120 分钟）
+```
+
+**一条编造的时效数字比没有更糟**——它看起来像一条可核对的事实。
 
 ### 实时扶摇接入：**尚未实现**（如实说明）
 
@@ -468,7 +482,7 @@ awk 'f{print} /^---$/{f=1}' docs/fuyao-contract.md | grep -c "暂未开放外部
 ## 测试
 
 ```bash
-npm test       # 180 个单元/集成测试
+npm test       # 186 个单元/集成测试
 npm run smoke  # 31 项端到端检查（需服务运行中）
 ```
 

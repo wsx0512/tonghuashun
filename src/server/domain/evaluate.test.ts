@@ -391,6 +391,107 @@ describe('契约对齐：读的必须是契约里真实存在的字段', () => {
   });
 });
 
+/**
+ * 请求参数必须落在契约定义的名字上。
+ *
+ * 这类 bug 在回放模式下**完全看不出来**（回放只认 thscode/thscodes，其余参数一律忽略），
+ * 只有真实调用才会报 `code=1001`。所以只能靠对着契约文本写断言。
+ */
+describe('契约对齐：请求参数只用契约定义过的名字', () => {
+  const priceLeaf = (metric: string, days?: number): Condition => ({
+    type: 'price',
+    id: 'p1',
+    subject: { kind: 'stock', thscode: '600519.SH' },
+    metric: metric as any,
+    operator: '>',
+    value: { kind: 'const', value: 1 },
+    ...(days !== undefined ? { window: { days, interval: '1d' as const } } : {}),
+  } as Condition);
+
+  it('历史 K 线发 start/end（契约必填），不发契约里不存在的 days', () => {
+    const need = resolveDataNeeds(priceLeaf('return_pct_window', 20))[0]!;
+    expect(need.endpoint).toBe('/api/a-share/prices/historical');
+
+    expect(need.params.start).toBeDefined();
+    expect(need.params.end).toBeDefined();
+    expect(need.params).not.toHaveProperty('days');
+
+    const start = Number(need.params.start);
+    const end = Number(need.params.end);
+    expect(Number.isFinite(start) && Number.isFinite(end)).toBe(true);
+    expect(end).toBeGreaterThan(start);
+    // 契约：end - start 超过 10 年返回 code=1003
+    expect(end - start).toBeLessThanOrEqual(3650 * 86_400_000);
+  });
+
+  it('窗口天数超大时被夹到 10 年以内，而不是直接违反契约', () => {
+    const need = resolveDataNeeds(priceLeaf('drawdown_from_high_pct', 99_999))[0]!;
+    const span = Number(need.params.end) - Number(need.params.start);
+    expect(span).toBeLessThanOrEqual(3650 * 86_400_000);
+  });
+
+  it('热榜走势发 thscode + start_date/end_date（契约三个都是必填）', () => {
+    const root: Condition = {
+      type: 'heat',
+      id: 'h1',
+      subject: { kind: 'stock', thscode: '300750.SZ' },
+      source: 'hot_stock_rank_trend',
+      metric: 'rank',
+      operator: '<=',
+      value: { kind: 'const', value: 10 },
+      window: { days: 30 },
+    } as Condition;
+
+    const need = resolveDataNeeds(root)[0]!;
+    expect(need.endpoint).toBe('/api/a-share/special-data/hot-stock-rank-trend');
+    expect(need.params.thscode).toBe('300750.SZ');
+    // 契约要求 yyyy-MM-dd
+    expect(need.params.start_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(need.params.end_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    // `period` 是热榜列表端点的参数，不该出现在这里
+    expect(need.params).not.toHaveProperty('period');
+  });
+
+  it('按股票查异动发复数 thscodes，不发单数 thscode', () => {
+    const root: Condition = {
+      type: 'event',
+      id: 'ev2',
+      subject: { kind: 'stock', thscode: '600519.SH' },
+      source: 'anomaly_analysis_stock',
+      filter: {},
+      presence: 'appears',
+    } as Condition;
+
+    const need = resolveDataNeeds(root)[0]!;
+    expect(need.endpoint).toBe('/api/a-share/special-data/anomaly-analysis-stock');
+    expect(need.params.thscodes).toBe('600519.SH');
+    expect(need.params).not.toHaveProperty('thscode');
+  });
+
+  it('不接受标的参数的清单类端点，不再被塞进 thscode', () => {
+    for (const source of ['limit_up_pool', 'dragon_tiger_list', 'abnormal_monitor_list'] as const) {
+      const root: Condition = {
+        type: 'event',
+        id: 'ev3',
+        subject: { kind: 'stock', thscode: '002815.SZ' },
+        source,
+        filter: {},
+        presence: 'appears',
+      } as Condition;
+
+      const need = resolveDataNeeds(root)[0]!;
+      expect(need.params).not.toHaveProperty('thscode');
+      expect(need.params).not.toHaveProperty('thscodes');
+    }
+  });
+
+  it('去掉 thscode 后仍然能在完整清单里找到该标的（客户端过滤兜底）', async () => {
+    // 崇达技术在涨停池里；参数收窄后由评测器按 thscode 在清单中定位
+    const { result } = await evaluate('崇达技术出现涨停');
+    expect(result.truth).toBe(true);
+  });
+});
+
 describe('降级文案必须明确表达"无法判定"', () => {
   it('失败场景的文案含技术细节与 request_id 线索', async () => {
     const chaos = new ChaosAdapter();

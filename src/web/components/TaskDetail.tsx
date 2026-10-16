@@ -310,6 +310,12 @@ export function EvidenceCard({ leaf }: { leaf: any }) {
             </>
           )}
         </div>
+        {/* 数据不新鲜却仍给出结论时，必须说明为什么——否则读者会以为这是矛盾的 */}
+        {leaf.freshness?.note && !leaf.freshness.fresh && (
+          <div className="tiny faint" style={{ marginTop: 2, color: 'var(--warn)' }}>
+            ↳ {leaf.freshness.note}
+          </div>
+        )}
 
         {leaf.conflicts?.length > 0 && (
           <div className="notice warn" style={{ marginTop: 8 }}>

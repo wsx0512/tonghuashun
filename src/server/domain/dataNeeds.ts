@@ -10,6 +10,34 @@
 
 import type { Condition, DataNeed, Leaf } from '../../shared/dsl/types.js';
 import { EP } from '../sources/types.js';
+import { getClock } from '../clock.js';
+
+const DAY_MS = 86_400_000;
+
+/** 契约要求历史 K 线的 [start, end] 跨度不超过 10 年，超过返回 code=1003 */
+const MAX_HISTORY_DAYS = 3650;
+
+/**
+ * 历史 K 线的 [start, end] 窗口。
+ *
+ * 契约把 `start` / `end` **都标为必需**（long，毫秒时间戳），缺失即 `code=1001`。
+ * 早先代码发的是一个契约里**根本不存在**的 `days` 参数 —— 回放模式下看不出来，
+ * 真实调用必然报错。这里按契约的形态构造。
+ */
+function historyWindow(days: number, nowMs: number): Record<string, string> {
+  const n = Math.min(Math.max(Math.trunc(days), 1), MAX_HISTORY_DAYS);
+  return { start: String(nowMs - n * DAY_MS), end: String(nowMs) };
+}
+
+/** `yyyy-MM-dd`（Asia/Shanghai）—— 契约对日期型入参要求的正是这个格式 */
+function shanghaiDay(ms: number): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(ms));
+}
 
 /**
  * 快照即可取到的价格指标。
@@ -92,7 +120,7 @@ export function leafDataNeed(leaf: Leaf): DataNeed {
             thscode,
             interval: '1d',
             adjust: 'forward',
-            days: String(leaf.window?.days ?? 60),
+            ...historyWindow(leaf.window?.days ?? 60, getClock().now()),
           },
           leafIds: [leaf.id],
         };
@@ -106,40 +134,64 @@ export function leafDataNeed(leaf: Leaf): DataNeed {
 
     case 'event': {
       const endpoint = EVENT_ENDPOINT[leaf.source] ?? EP.anomalyAnalysisList;
-      /**
-       * 异动标签过滤走**请求参数** `tag_codes`，不是客户端过滤。
+      const thscode = subjectThscode(leaf.subject);
+
+      /*
+       * 只发**契约定义过**的参数。
        *
-       * 原因：契约的响应记录里**没有**标签代码字段 —— 只有展示名 `tag_name`（如"大涨"）。
-       * 标签代码（`LIMIT_UP` 等）是请求侧的概念，由服务端过滤。
-       * 早先在客户端拿 `hit.tag_code` 比对响应，那个字段根本不存在，
-       * 于是按标签过滤的条件永远不命中。
+       * 早先对所有事件端点统一塞 `thscode`，但契约里只有「按股票查异动」
+       * 接受标的参数，且要求的是**复数** `thscodes`；涨跌停池 / 龙虎榜 /
+       * 异动监控等端点都不接受标的参数（它们是"整份清单"语义，客户端过滤）。
+       * 发一个契约没定义的参数，在真实调用下会被判为非法入参。
        */
-      const tagCodes =
-        endpoint === EP.anomalyAnalysisList && leaf.filter?.tags?.length
-          ? leaf.filter.tags.join(',')
-          : null;
+      if (endpoint === EP.anomalyAnalysisStock) {
+        return { endpoint, params: { thscodes: thscode }, leafIds: [leaf.id] };
+      }
+      if (endpoint === EP.anomalyAnalysisList) {
+        /**
+         * 异动标签过滤走**请求参数** `tag_codes`，不是客户端过滤：
+         * 响应记录里没有标签代码字段，只有展示名 `tag_name`。
+         * 标签代码（`LIMIT_UP` 等）是请求侧的概念，由服务端过滤。
+         */
+        const tagCodes = leaf.filter?.tags?.length ? leaf.filter.tags.join(',') : null;
+        return {
+          endpoint,
+          params: tagCodes ? { tag_codes: tagCodes } : {},
+          leafIds: [leaf.id],
+        };
+      }
+      return { endpoint, params: {}, leafIds: [leaf.id] };
+    }
+
+    case 'heat': {
+      const thscode = subjectThscode(leaf.subject);
+
+      if (leaf.source === 'hot_stock_rank_trend') {
+        /*
+         * 该端点的契约入参是 `thscode` + **必填的** `start_date` / `end_date`
+         * （`yyyy-MM-dd`）。早先发的是 `period` —— 那是热榜列表端点的参数，
+         * 用在这里会被判为非法入参，同时缺了两个必填项。
+         */
+        const days = leaf.window?.days ?? 30;
+        const nowMs = getClock().now();
+        return {
+          endpoint: EP.hotStockRankTrend,
+          params: {
+            thscode,
+            start_date: shanghaiDay(nowMs - (days - 1) * DAY_MS),
+            end_date: shanghaiDay(nowMs),
+          },
+          leafIds: [leaf.id],
+        };
+      }
+
+      // 热榜列表端点：`period`（可选）+ `limit`，不接受 thscode
       return {
-        endpoint,
-        params: {
-          thscode: subjectThscode(leaf.subject),
-          ...(tagCodes ? { tag_codes: tagCodes } : {}),
-        },
+        endpoint: EP.hotStockList,
+        params: { ...(leaf.period ? { period: leaf.period } : {}) },
         leafIds: [leaf.id],
       };
     }
-
-    case 'heat':
-      return {
-        endpoint:
-          leaf.source === 'hot_stock_rank_trend'
-            ? EP.hotStockRankTrend
-            : EP.hotStockList,
-        params: {
-          thscode: subjectThscode(leaf.subject),
-          ...(leaf.period ? { period: leaf.period } : {}),
-        },
-        leafIds: [leaf.id],
-      };
 
     case 'calendar':
       return {
