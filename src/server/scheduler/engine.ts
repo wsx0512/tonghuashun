@@ -26,6 +26,7 @@ import { evaluateRule, type DataBundle, type TaskEvaluation } from '../domain/ev
 import { SourceMesh, type FieldComparison } from '../sources/sourceMesh.js';
 import * as repo from '../store/repo.js';
 import { newId } from '../store/db.js';
+import type { OutboundNotification, DeliveryOutcome } from '../delivery/webhook.js';
 
 export interface EngineDeps {
   db: DatabaseSync;
@@ -34,6 +35,11 @@ export interface EngineDeps {
   subjectName: (thscode: string) => string;
   /** 交易日判定；返回 null 表示日历未就绪 */
   isTradingDay: (dateCompact: string) => boolean | null;
+  /**
+   * 站外推送渠道。**未注入时按"未配置"处理，并如实记为 SKIPPED**——
+   * 不能因为"没配渠道"就假装投递成功，那样用户会以为自己在被通知。
+   */
+  delivery?: { name: string; deliver(n: OutboundNotification): Promise<DeliveryOutcome> } | null;
 }
 
 export interface RunResult {
@@ -190,6 +196,83 @@ export async function runTask(
     // ── 去重 / 冷却 / 通知 ──
     const notifications: RunResult['notifications'] = [];
     let suppressedCount = 0;
+
+    /**
+     * 落库 + 站外投递，两者绑在一起。
+     *
+     * 绑在一起的理由：只把通知写进库、却不知道它有没有送出去，用户仍然无法回答
+     * 「我为什么没收到」。所以每一次投递都记一行 —— **包括未配置渠道** 的情形。
+     */
+    const notifyAndDeliver = async (n: {
+      kind: string;
+      text: string;
+      epistemic: 'fact' | 'inference' | 'unknown';
+    }): Promise<void> => {
+      const id = repo.addNotification(db, {
+        taskId: task.id,
+        runId,
+        kind: n.kind,
+        text: n.text,
+        epistemic: n.epistemic,
+        now,
+      });
+      notifications.push({ id, kind: n.kind, text: n.text, epistemic: n.epistemic });
+
+      const ch = deps.delivery;
+      if (!ch) {
+        repo.recordDelivery(
+          db,
+          {
+            notificationId: id,
+            taskId: task.id,
+            channel: 'webhook',
+            status: 'SKIPPED',
+            attempts: 0,
+            lastError: '未配置站外推送渠道（SENTINEL_WEBHOOK_URL 为空），仅站内通知',
+          },
+          now,
+        );
+        return;
+      }
+
+      try {
+        const outcome = await ch.deliver({
+          id,
+          taskId: task.id,
+          taskName: task.name,
+          kind: n.kind,
+          text: n.text,
+          epistemic: n.epistemic,
+        });
+        repo.recordDelivery(
+          db,
+          {
+            notificationId: id,
+            taskId: task.id,
+            channel: ch.name,
+            status: outcome.status,
+            attempts: outcome.attempts,
+            httpStatus: outcome.httpStatus ?? null,
+            lastError: outcome.error ?? null,
+          },
+          now,
+        );
+      } catch (e) {
+        // 渠道自身抛错不能带崩整个 tick，但必须留痕，绝不吞掉
+        repo.recordDelivery(
+          db,
+          {
+            notificationId: id,
+            taskId: task.id,
+            channel: ch.name,
+            status: 'FAILED',
+            attempts: 1,
+            lastError: e instanceof Error ? e.message : String(e),
+          },
+          now,
+        );
+      }
+    };
     const inCooldown = task.cooldownUntil !== null && now < task.cooldownUntil;
 
     for (const leaf of evaluation.leaves) {
@@ -202,15 +285,7 @@ export async function runTask(
         // 恢复通知：此前为真、现在为假
         if (wasTrue && task.policy.notifyOnRecovery) {
           const text = `此前触发的条件已解除（${leaf.evidence.conditionKind}，规则版本 v${rule.version}）。`;
-          const id = repo.addNotification(db, {
-            taskId: task.id,
-            runId,
-            kind: 'RECOVERED',
-            text,
-            epistemic: 'fact',
-            now,
-          });
-          notifications.push({ id, kind: 'RECOVERED', text, epistemic: 'fact' });
+          await notifyAndDeliver({ kind: 'RECOVERED', text, epistemic: 'fact' });
         }
         continue;
       }
@@ -273,15 +348,7 @@ export async function runTask(
         continue;
       }
 
-      const id = repo.addNotification(db, {
-        taskId: task.id,
-        runId,
-        kind: 'TRIGGERED',
-        text: leaf.evidence.narrative,
-        epistemic: 'fact',
-        now,
-      });
-      notifications.push({ id, kind: 'TRIGGERED', text: leaf.evidence.narrative, epistemic: 'fact' });
+      await notifyAndDeliver({ kind: 'TRIGGERED', text: leaf.evidence.narrative, epistemic: 'fact' });
     }
 
     // ── 状态转移 ──
@@ -313,15 +380,7 @@ export async function runTask(
         // 健康级恢复通知
         const mins = Math.round((now - recoveredFrom) / 60000);
         const text = `数据已恢复，任务从降级状态回到正常监控（此前降级约 ${mins} 分钟）。`;
-        const id = repo.addNotification(db, {
-          taskId: task.id,
-          runId,
-          kind: 'HEALTH_RECOVERED',
-          text,
-          epistemic: 'fact',
-          now,
-        });
-        notifications.push({ id, kind: 'HEALTH_RECOVERED', text, epistemic: 'fact' });
+        await notifyAndDeliver({ kind: 'HEALTH_RECOVERED', text, epistemic: 'fact' });
         stateAfter = 'RECOVERING';
       } else {
         // 冷却到期且未触发 → 回到常规监控

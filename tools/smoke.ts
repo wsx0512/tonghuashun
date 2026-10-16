@@ -109,6 +109,22 @@ async function main() {
 
   const run1 = await post(`/api/tasks/${created.task.id}/run`);
   const r1 = run1.result;
+
+  /**
+   * 触发了不等于用户收到了。每条通知都必须有明确的投递去向——
+   * 默认未配置站外渠道时应记为 SKIPPED 并写明原因，而不是悄悄没了。
+   */
+  const detail = await req(`/api/tasks/${created.task.id}`);
+  const dlvs = detail.deliveries ?? [];
+  dlvs.length >= (r1.notifications?.length ?? 0) && dlvs.length > 0
+    ? ok(
+        '每条通知都有投递去向',
+        `通知 ${r1.notifications?.length ?? 0} 条 / 投递记录 ${dlvs.length} 条 · ${
+          dlvs[0].status === 'SKIPPED' ? '未配置渠道，如实记为跳过' : dlvs[0].status
+        }`,
+      )
+    : bad('每条通知都有投递去向', `通知 ${r1.notifications?.length ?? 0} 条，但投递记录 ${dlvs.length} 条`);
+
   r1.truth === true
     ? ok('条件命中并触发', `状态 ${r1.stateBefore} → ${r1.stateAfter}，通知 ${r1.notifications.length} 条`)
     : bad('条件命中并触发', `truth=${r1.truth}`);

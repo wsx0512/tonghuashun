@@ -497,3 +497,84 @@ describe('证据落库', () => {
     expect(raw.body).toBeTruthy();
   });
 });
+
+/**
+ * 站外推送的投递留痕。
+ *
+ * 「触发了但用户没收到」是最容易被静默吞掉的一环：通知写进了库，界面也显示了，
+ * 但没送到人那儿，而系统看起来一切正常。所以每一次投递都必须有明确去向。
+ */
+describe('站外推送：每次通知都要有明确去向', () => {
+  it('未注入渠道 → 通知照常生成，投递如实记为 SKIPPED 并写明原因', async () => {
+    makeTask('崇达技术出现涨停');
+    const r = await runTask(deps, getTask());
+
+    expect(r.notifications.length).toBeGreaterThan(0);
+
+    const dlv = repo.listDeliveries(db, 'task1');
+    expect(dlv.length).toBe(r.notifications.length);
+    expect(dlv[0]!.status).toBe('SKIPPED');
+    expect(dlv[0]!.last_error).toContain('未配置');
+  });
+
+  it('注入渠道 → 记为 SENT，且投递内容与通知一一对应', async () => {
+    const sent: any[] = [];
+    deps.delivery = {
+      name: 'webhook',
+      deliver: async (n) => {
+        sent.push(n);
+        return { status: 'SENT', attempts: 1, httpStatus: 200 };
+      },
+    };
+
+    makeTask('崇达技术出现涨停');
+    const r = await runTask(deps, getTask());
+
+    expect(sent.length).toBe(r.notifications.length);
+    expect(sent[0]!.text).toBe(r.notifications[0]!.text);
+    // 任务名随投递一起送出，收端不必再回查
+    expect(sent[0]!.taskName).toBeTruthy();
+
+    const dlv = repo.listDeliveries(db, 'task1');
+    expect(dlv.every((d) => d.status === 'SENT')).toBe(true);
+    expect(dlv[0]!.attempts).toBe(1);
+  });
+
+  it('渠道抛错不能带崩 tick，但失败必须留痕', async () => {
+    deps.delivery = {
+      name: 'webhook',
+      deliver: async () => {
+        throw new Error('boom: 渠道内部错误');
+      },
+    };
+
+    makeTask('崇达技术出现涨停');
+    const r = await runTask(deps, getTask());
+
+    // tick 正常完成，通知也在
+    expect(r.notifications.length).toBeGreaterThan(0);
+
+    const dlv = repo.listDeliveries(db, 'task1');
+    expect(dlv[0]!.status).toBe('FAILED');
+    expect(dlv[0]!.last_error).toContain('boom');
+  });
+
+  it('重新投递同一条通知时更新原记录，不追加重复行', async () => {
+    const now = clock.now();
+    repo.recordDelivery(
+      db,
+      { notificationId: 'n1', taskId: 'task1', channel: 'webhook', status: 'FAILED', attempts: 3, lastError: 'HTTP 500' },
+      now,
+    );
+    repo.recordDelivery(
+      db,
+      { notificationId: 'n1', taskId: 'task1', channel: 'webhook', status: 'SENT', attempts: 1, httpStatus: 200 },
+      now + 1000,
+    );
+
+    const rows = repo.listDeliveries(db, 'task1');
+    expect(rows.length).toBe(1);
+    expect(rows[0]!.status).toBe('SENT');
+    expect(rows[0]!.last_error).toBeNull();
+  });
+});

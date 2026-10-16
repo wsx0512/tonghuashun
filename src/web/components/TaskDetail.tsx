@@ -32,7 +32,7 @@ export default function TaskDetail({
   }, [taskId]);
 
   if (!data) return <div className="panel">载入中…</div>;
-  const { task, rule, ruleHistory, runs, notifications, suppressed, events } = data;
+  const { task, rule, ruleHistory, runs, notifications, deliveries, suppressed, events } = data;
 
   const bumpRule = async () => {
     const r = await api.updateRule(taskId, { text: editText });
@@ -122,7 +122,7 @@ export default function TaskDetail({
       </div>
 
       {tab === 'why' && (
-        <WhyTab runs={runs} suppressed={suppressed} notifications={notifications} />
+        <WhyTab runs={runs} suppressed={suppressed} notifications={notifications} deliveries={deliveries} />
       )}
       {tab === 'timeline' && <TimelineTab events={events} />}
       {tab === 'versions' && (
@@ -141,7 +141,7 @@ export default function TaskDetail({
 
 /* ───────────── 为什么触没触发 ───────────── */
 
-function WhyTab({ runs, suppressed, notifications }: any) {
+function WhyTab({ runs, suppressed, notifications, deliveries }: any) {
   const last = runs?.[0];
 
   return (
@@ -192,14 +192,31 @@ function WhyTab({ runs, suppressed, notifications }: any) {
           <h4 className="panel-title" style={{ marginTop: 14 }}>
             通知记录
           </h4>
-          {notifications.slice(0, 10).map((n: any) => (
-            <div key={n.id} className={`tl-item ${n.kind === 'TRIGGERED' ? 'trigger' : ''}`} style={{ paddingBottom: 8 }}>
-              <div className="tl-text" style={{ whiteSpace: 'pre-wrap' }}>{n.text}</div>
-              <div className="tl-meta">
-                {fmtTime(n.created_at)} · {n.kind} · 认知级别 {n.epistemic}
+          {notifications.slice(0, 10).map((n: any) => {
+            // 每条通知都标注"送没送出去"——送不出去时必须看得见，
+            // 否则用户会把"没收到"误当成"没触发"。
+            const d = deliveries?.find((x: any) => x.notification_id === n.id);
+            const badge =
+              d == null
+                ? { text: '未投递', color: 'var(--fg-dim)' }
+                : d.status === 'SENT'
+                  ? { text: `已推送${d.attempts > 1 ? `（重试 ${d.attempts - 1} 次）` : ''}`, color: 'var(--ok)' }
+                  : d.status === 'SKIPPED'
+                    ? { text: '未配置推送渠道', color: 'var(--fg-dim)' }
+                    : { text: `推送失败（尝试 ${d.attempts} 次）`, color: 'var(--warn)' };
+            return (
+              <div key={n.id} className={`tl-item ${n.kind === 'TRIGGERED' ? 'trigger' : ''}`} style={{ paddingBottom: 8 }}>
+                <div className="tl-text" style={{ whiteSpace: 'pre-wrap' }}>{n.text}</div>
+                <div className="tl-meta">
+                  {fmtTime(n.created_at)} · {n.kind} · 认知级别 {n.epistemic} ·{' '}
+                  <span style={{ color: badge.color }}>{badge.text}</span>
+                  {d?.last_error && (
+                    <span style={{ color: 'var(--fg-dim)' }}>（{d.last_error}）</span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </>
       )}
     </div>

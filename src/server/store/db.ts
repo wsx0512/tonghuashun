@@ -105,6 +105,28 @@ CREATE TABLE IF NOT EXISTS events (
   created_at   INTEGER NOT NULL
 );
 
+/*
+ * 站外推送的投递记录。
+ *
+ * 为什么要专门建一张表而不是"发出去就算了"：推送失败是最容易被**静默吞掉**的一环——
+ * 用户以为"没触发"，其实是触发了但没送出去。本项目的立身之本就是"不得静默生成正常结论"，
+ * 所以每一次投递（含**未配置渠道而跳过**、失败、重试）都要留痕并可查。
+ */
+CREATE TABLE IF NOT EXISTS deliveries (
+  id              TEXT PRIMARY KEY,
+  notification_id TEXT NOT NULL,
+  task_id         TEXT NOT NULL,
+  channel         TEXT NOT NULL,
+  status          TEXT NOT NULL,   -- SENT | FAILED | SKIPPED
+  attempts        INTEGER NOT NULL,
+  http_status     INTEGER,
+  last_error      TEXT,
+  created_at      INTEGER NOT NULL,
+  updated_at      INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_deliveries_notification ON deliveries(notification_id);
+
 CREATE TABLE IF NOT EXISTS evidence (
   id              TEXT PRIMARY KEY,
   task_id         TEXT NOT NULL,

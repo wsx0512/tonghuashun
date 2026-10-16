@@ -35,6 +35,11 @@ export interface AppContext {
    * 把回放数据标成实时数据 —— 那正是本项目最不能犯的错。
    */
   dataSource: { kind: 'replay' | 'live'; label: string; note: string };
+  /**
+   * 站外推送渠道的**实际状态**。与 dataSource 同理：报告事实，不报告期望。
+   * 未配置时必须能被用户看见，否则"为什么我没收到通知"无从回答。
+   */
+  delivery: { configured: boolean; label: string };
   chaos: { activeScenario: ChaosScenario | null; setScenario: (s: ChaosScenario | null, o?: any) => void; clear: () => void };
   loadCalendar: () => Promise<number>;
   startScheduler: () => void;
@@ -74,6 +79,7 @@ export function createApp(ctx: AppContext): Express {
       // 如实披露数据来源，不假装是扶摇返回的。来源由实际适配器决定。
       dataSource: ctx.dataSource.label,
       dataSourceNote: ctx.dataSource.note,
+      delivery: ctx.delivery,
       chaos: ctx.chaos.activeScenario,
       compliance: '本产品不预测涨跌、不承诺收益、不构成买卖建议；事实、推断与不确定信息严格区分。',
     });
@@ -142,6 +148,8 @@ export function createApp(ctx: AppContext): Express {
       })),
       runs: repo.recentRuns(db, t.id, 20),
       notifications: repo.listNotifications(db, t.id, 50),
+      // 每条通知的投递去向（SENT / FAILED / SKIPPED），界面上逐条标注
+      deliveries: repo.listDeliveries(db, t.id, 100),
       suppressed: repo.listSuppressed(db, t.id, 50),
       events: repo.listEvents(db, t.id, 50),
     });

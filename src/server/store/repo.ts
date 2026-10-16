@@ -330,6 +330,79 @@ export function listNotifications(db: DatabaseSync, taskId: string, limit = 50):
     .all(taskId, limit);
 }
 
+// ────────────────────────── 站外投递记录 ──────────────────────────
+
+export type DeliveryStatus = 'SENT' | 'FAILED' | 'SKIPPED';
+
+export interface DeliveryRecord {
+  notificationId: string;
+  taskId: string;
+  channel: string;
+  status: DeliveryStatus;
+  attempts: number;
+  httpStatus?: number | null;
+  lastError?: string | null;
+}
+
+/** 记录一次投递结果。同一个通知只保留一行（重试时更新它，不追加）。 */
+export function recordDelivery(db: DatabaseSync, d: DeliveryRecord, now: number): string {
+  const existing = db
+    .prepare('SELECT id FROM deliveries WHERE notification_id = ? AND channel = ?')
+    .get(d.notificationId, d.channel) as { id: string } | undefined;
+
+  if (existing) {
+    db.prepare(
+      'UPDATE deliveries SET status=?, attempts=?, http_status=?, last_error=?, updated_at=? WHERE id=?',
+    ).run(d.status, d.attempts, d.httpStatus ?? null, d.lastError ?? null, now, existing.id);
+    return existing.id;
+  }
+
+  const id = newId('dlv');
+  db.prepare(
+    `INSERT INTO deliveries (id,notification_id,task_id,channel,status,attempts,http_status,last_error,created_at,updated_at)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`,
+  ).run(
+    id,
+    d.notificationId,
+    d.taskId,
+    d.channel,
+    d.status,
+    d.attempts,
+    d.httpStatus ?? null,
+    d.lastError ?? null,
+    now,
+    now,
+  );
+  return id;
+}
+
+export function listDeliveries(db: DatabaseSync, taskId: string, limit = 100): any[] {
+  return db
+    .prepare('SELECT * FROM deliveries WHERE task_id = ? ORDER BY created_at DESC LIMIT ?')
+    .all(taskId, limit);
+}
+
+/** 按通知 id 取投递记录，供界面在每条通知旁标注"送没送出去" */
+export function deliveriesByNotification(db: DatabaseSync, notificationIds: string[]): Map<string, any> {
+  const out = new Map<string, any>();
+  if (notificationIds.length === 0) return out;
+  const placeholders = notificationIds.map(() => '?').join(',');
+  const rows = db
+    .prepare(`SELECT * FROM deliveries WHERE notification_id IN (${placeholders})`)
+    .all(...notificationIds) as any[];
+  for (const r of rows) out.set(r.notification_id as string, r);
+  return out;
+}
+
+/** 最近的投递失败/跳过，用于在界面上给出"为什么我没收到"的解释 */
+export function recentDeliveryProblems(db: DatabaseSync, limit = 20): any[] {
+  return db
+    .prepare(
+      `SELECT * FROM deliveries WHERE status IN ('FAILED','SKIPPED') ORDER BY updated_at DESC LIMIT ?`,
+    )
+    .all(limit);
+}
+
 export function logEvent(
   db: DatabaseSync,
   e: { taskId: string; runId?: string; kind: string; from?: TaskState; to?: TaskState; payload?: unknown; now: number },

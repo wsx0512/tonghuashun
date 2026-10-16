@@ -19,6 +19,7 @@ import { ChaosAdapter, type ChaosScenario } from './sources/chaos.adapter.js';
 import { SourceMesh } from './sources/sourceMesh.js';
 import { tick, type EngineDeps } from './scheduler/engine.js';
 import { createApp } from './http/app.js';
+import { WebhookChannel } from './delivery/webhook.js';
 import { systemClock } from './clock.js';
 import type { CatalogEntry } from './nl/parser.js';
 
@@ -64,12 +65,20 @@ async function main() {
   const secondary = new ReplayAdapter({ perturbPct: 0 });
   const mesh = new SourceMesh({ primary: chaos, secondary, tolerancePct: 0.005 });
 
+  /**
+   * 站外推送渠道。默认**未配置**——没有 SENTINEL_WEBHOOK_URL 时不会假装投递成功，
+   * 每次通知都会如实记为 SKIPPED 并写明原因（可在界面上看到）。
+   */
+  const webhook = new WebhookChannel({ url: process.env.SENTINEL_WEBHOOK_URL ?? null });
+  console.log(`[sentinel] 站外推送: ${webhook.describe().label}`);
+
   const deps: EngineDeps = {
     db,
     mesh,
     now: () => systemClock.now(),
     subjectName: (code) => names.get(code) ?? code,
     isTradingDay: (compact) => repo.isTradingDay(db, compact),
+    delivery: webhook,
   };
 
   // ── 交易日历 ──
@@ -158,6 +167,7 @@ async function main() {
     deps,
     catalog,
     dataSource,
+    delivery: webhook.describe(),
     chaos: chaosCtl,
     loadCalendar,
     startScheduler,
