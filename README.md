@@ -404,10 +404,19 @@ Fixture 由 [`tools/record-fixtures.ts`](tools/record-fixtures.ts) 于 **2026-10
 
 **这一条不需要相信我的转述。** 契约原文已逐字存档在
 [`docs/fuyao-contract.md`](docs/fuyao-contract.md)（含来源 URL、抓取时间与字节数），
-可以离线复核：
+可以离线复核。存档正文自 `---` 分隔线之后开始，因此只统计正文（跳过说明头部）：
 
 ```bash
-awk 'f{print} /^---$/{f=1}' docs/fuyao-contract.md | grep -c "暂未开放外部接入"
+# macOS / Linux / Git Bash
+sed -n '/^---$/,$p' docs/fuyao-contract.md | grep -c "暂未开放外部接入"
+# → 8
+```
+
+```powershell
+# Windows PowerShell
+(Select-String -Path docs\fuyao-contract.md -Pattern '暂未开放外部接入' -AllMatches |
+  Where-Object { $_.LineNumber -gt (Select-String -Path docs\fuyao-contract.md -Pattern '^---$' | Select-Object -First 1).LineNumber }
+).Count
 # → 8
 ```
 

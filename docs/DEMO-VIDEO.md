@@ -9,27 +9,47 @@
 
 **顺序很重要**：冒烟测试会往库里写测试任务，所以必须先自检、**再**清库，不能反过来。
 
+> ⚠️ **删库那条命令的写法取决于你的终端**。PowerShell 里 `rm` 是 `Remove-Item` 的别名，
+> 而 `-f` 有歧义（同时匹配 `-Filter` 和 `-Force`），会报
+> `ParameterBindingException: 'f' 具有二义性`。下面的 PowerShell 版本去掉了 `-f`。
+> 其余命令（`npm run …`、`cloudflared.exe`）两个终端通用。
+
+**第 ①② 步**：
+
 ```bash
 # ① 先自检：应当 31 项全过。不过就先别录，环境有问题
 npm run smoke
+```
 
-# ② 停掉服务，把库整个删掉重来
-#    （npm run seed 只会清理它自己那 6 个任务，冒烟留下的测试任务删不掉）
-#    Windows: Ctrl+C 停掉 npm run start，然后
-rm -f var/sentinel.db var/sentinel.db-shm var/sentinel.db-wal
+```powershell
+# ② 停掉服务（Ctrl+C 结束 npm run start），再把库整个删掉重来。
+#    npm run seed 只会清理它自己那 6 个任务，冒烟留下的测试任务删不掉。
+#    —— PowerShell ——
+Remove-Item -Force var\sentinel.db, var\sentinel.db-shm, var\sentinel.db-wal -ErrorAction SilentlyContinue
 npm run seed          # → 载入 6 个演示任务
+```
 
-# ③ 构建并启动，确认「监控任务 (6)」
-npm run start
+```bash
+# ② 同上，Git Bash 版本
+rm -f var/sentinel.db var/sentinel.db-shm var/sentinel.db-wal
+npm run seed
+```
 
-# ④ 另开一个终端，起公网隧道（→ 这就是要提交的 URL，窗口别关）
-./tools/bin/cloudflared.exe tunnel --url http://localhost:8787
+**第 ③④ 步**：
+
+```bash
+npm run start                                    # ③ 构建并启动，确认「监控任务 (6)」
+./tools/bin/cloudflared.exe tunnel --url http://localhost:8787   # ④ 公网隧道，窗口别关
 ```
 
 - 浏览器打开 **http://localhost:8787**（或隧道给的 `https://xxx.trycloudflare.com`）。
 - 录屏只录浏览器标签页即可，不必录终端。**建议录 1080p、隐藏书签栏**。
 - **开始录之前扫一眼顶栏**：页签应显示 `监控任务 (6)`，且**没有**黄色的「故障注入中」徽章。
   不是 6 或带着徽章，说明上一步没做干净。
+
+> **省事写法**：如果是我已经把库清好的状态（页签已经是 `监控任务 (6)`），
+> 你**跳过第 ② 步直接录**即可。只有当你自己先跑了 `npm run smoke` 自检、
+> 把库弄脏之后，才需要清库。
 
 ---
 
